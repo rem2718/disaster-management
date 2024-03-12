@@ -1,0 +1,139 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Access API",
+        "description": "API endpoints for UGV-Based Disaster Management System",
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Bearer token"
+        }
+    },
+    "paths": {
+        "/signup": {
+            "post": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User signup",
+                "description": "Register a new user",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "example": "user@example.com"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "example": "password123"
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "example": "username123"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User created successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "409": {
+                        "description": "Conflict - Email or Username is already taken"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User login",
+                "description": "Login with email or username and password",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email_or_username": {
+                                    "type": "string",
+                                    "example": "user@example.com"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "example": "password123"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid email or password"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User logout",
+                "description": "Logout the user",
+                "responses": {
+                    "200": {
+                        "description": "User logged out successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid token"
+                    },
+                    "404": {
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    }
+}
