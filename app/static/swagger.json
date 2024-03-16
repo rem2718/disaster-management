@@ -15,13 +15,13 @@
         }
     },
     "paths": {
-        "/signup": {
+        "/user/signup": {
             "post": {
                 "tags": [
                     "User Management"
                 ],
-                "summary": "User signup",
-                "description": "Register a new user",
+                "summary": "User Signup",
+                "description": "Register a new user\n\npassword conditions:\n-contains at least 8 characters\n-contains at least one uppercase letter, one lowercase letter, one digit, and one special character\n\nnote: email and username must be unique",
                 "parameters": [
                     {
                         "name": "body",
@@ -37,11 +37,11 @@
                                 },
                                 "password": {
                                     "type": "string",
-                                    "example": "password123"
+                                    "example": "Password@123"
                                 },
                                 "username": {
                                     "type": "string",
-                                    "example": "username123"
+                                    "example": "user123"
                                 }
                             }
                         }
@@ -49,7 +49,24 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "User created successfully"
+                        "description": "User created successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "User created successfully."
+                                },
+                                "user_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae80e90e08641e22ef"
+                                },
+                                "token": {
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjA1NWEwYWU4MGU5MGUwODY0MWUyMmVmIiwiaWF0IjoxNjYxNDM3NTQzLCJleHAiOjE2NjE0NDEyNDN9.T6PlvZxId2GJWnT5SyZgnkr0-pUgBp9_1l1dUKhxO54"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request"
@@ -63,12 +80,12 @@
                 }
             }
         },
-        "/login": {
+        "/user/login": {
             "post": {
                 "tags": [
                     "User Management"
                 ],
-                "summary": "User login",
+                "summary": "User Login",
                 "description": "Login with email or username and password",
                 "parameters": [
                     {
@@ -85,7 +102,7 @@
                                 },
                                 "password": {
                                     "type": "string",
-                                    "example": "password123"
+                                    "example": "Password@123"
                                 }
                             }
                         }
@@ -93,7 +110,20 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User logged in successfully"
+                        "description": "User logged in successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "User Hilal loggedin successfully."
+                                },
+                                "token": {
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjA1NWEwYWU4MGU5MGUwODY0MWUyMmVmIiwiaWF0IjoxNjYxNDM3NTQzLCJleHAiOjE2NjE0NDEyNDN9.T6PlvZxId2GJWnT5SyZgnkr0-pUgBp9_1l1dUKhxO54"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request"
@@ -107,22 +137,531 @@
                 }
             }
         },
-        "/logout": {
+        "/user/logout": {
             "post": {
                 "tags": [
                     "User Management"
                 ],
-                "summary": "User logout",
+                "summary": "User Logout",
                 "description": "Logout the user",
                 "responses": {
                     "200": {
-                        "description": "User logged out successfully"
+                        "description": "User logged out successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "User logged out successfully."
+                                },
+                                "token": {
+                                    "type": "string",
+                                    "example": ""
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request - Invalid token"
                     },
                     "404": {
                         "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User Info Retrievement",
+                "description": "Get User Information",
+                "responses": {
+                    "200": {
+                        "description": "JSON object of user information",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "user_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae80e90e08641e22ef"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "email@example.com"
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "example": "Username1"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid token"
+                    },
+                    "404": {
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User Info Update",
+                "description": "Update user's username or email",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User data",
+                        "required": false,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "username": {
+                                    "type": "string",
+                                    "example": "new_username"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "new_email@example.com"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User information updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "User information is updated successfully."
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "email@example.com"
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "example": "Username1"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found - User not found"
+                    },
+                    "409": {
+                        "description": "Conflict - The username or email is already taken or identical to the current one"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "user/cur_missions": {
+            "get": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User Current Missions Retrievement",
+                "description": "Retrieve all missions in which the user is currently participating actively\n\nMission Statuses(enum):\n1: CREATED\n2: ONGOING\n3: PAUSED",
+                "responses": {
+                    "200": {
+                        "description": "List of all the current missions",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "properties": {
+                                    "_id": {
+                                        "type": "string",
+                                        "example": "6055a0ae80e90e08641e22ef"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "MissionABC"
+                                    },
+                                    "status": {
+                                        "type": "int",
+                                        "example": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/password": {
+            "put": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User Password Update",
+                "description": "Update user's password",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "User data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "old_password": {
+                                    "type": "string",
+                                    "example": "Old_password123"
+                                },
+                                "new_password": {
+                                    "type": "string",
+                                    "example": "New_password123"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Password is updated successfully."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - No password provided or new password is identical to the current one"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Incorrect old password"
+                    },
+                    "404": {
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/robot": {
+            "post": {
+                "tags": [
+                    "Robot Management"
+                ],
+                "summary": "Robot Registration",
+                "description": "Register a new robot",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Robot data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Robot1"
+                                },
+                                "mac": {
+                                    "type": "string",
+                                    "example": "00:0a:95:9d:68:16"
+                                },
+                                "type": {
+                                    "type": "int",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Robot registered successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Robot registered successfully."
+                                },
+                                "robot_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae20e90e08641e22ef"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "409": {
+                        "description": "Conflict - A robot with the same MAC address is already registered"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/robot/deactivate": {
+            "put": {
+                "tags": [
+                    "Robot Management"
+                ],
+                "summary": "Robot Deactivation",
+                "description": "Deactivate a robot",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Robot ID",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "robot_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae80e90e08641e22ef"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Robot is deactivated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Robot is deactivated successfully."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found - Robot not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/mission": {
+            "post": {
+                "tags": [
+                    "Mission Management"
+                ],
+                "summary": "Mission Creation",
+                "description": "Create a new mission with the provided details",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Mission data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Mission ABC"
+                                },
+                                "start_date": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2024-03-14 06:06:28.018762"
+                                },
+                                "robot_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "6055a0ae80e90e08641e22ef"
+                                    }
+                                },
+                                "user_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "6055a0ae80e90e08641e22ef"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Mission created successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Mission created successfully."
+                                },
+                                "mission_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae80e90e08641e22ef"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/mission/{mission_id}": {
+            "get": {
+                "tags": [
+                    "Mission Management"
+                ],
+                "summary": "Mission Information Retrievement",
+                "description": "Retrieve information about a specific mission",
+                "parameters": [
+                    {
+                        "name": "mission_id",
+                        "in": "path",
+                        "description": "ID of the mission to retrieve",
+                        "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mission information retrieved successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "example": "6055a0ae80e90e08641e22ef"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "Mission ABC"
+                                },
+                                "start_date": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2024-03-14 06:06:28.018762"
+                                },
+                                "end_date": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2024-03-16 06:06:28.018762"
+                                },
+                                "status": {
+                                    "type": "int",
+                                    "example": 1
+                                },
+                                "robots": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "example": "6055a0ae80e90e08641e22ef"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Robot1"
+                                            },
+                                            "type": {
+                                                "type": "int",
+                                                "example": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found - Mission not found"
                     },
                     "500": {
                         "description": "Internal Server Error"

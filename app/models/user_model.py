@@ -2,17 +2,27 @@ from datetime import timedelta
 import re
 
 from flask_jwt_extended import create_access_token
+from mongoengine import EmbeddedDocumentField
 
-from app.utils.enums import UserType, Status
+from app.utils.enums import UserType, Status, MissionStatus
 from app.utils.extensions import db, bcrypt
 
+class cur_mission(db.EmbeddedDocument):
+    _id = db.ObjectIdField(default=None)
+    name = db.StringField()
+    status = db.EnumField(MissionStatus, default=MissionStatus.CREATED)
+    meta = {
+        'collection': 'cur_missions'  
+    }
 
 class User(db.Document):
     email = db.EmailField(required=True)
     password = db.StringField(required=True)
     username = db.StringField(required=True)
-    type = db.EnumField(UserType, default=UserType.Regular)
-    status = db.EnumField(Status, default=Status.Active)
+    type = db.EnumField(UserType, default=UserType.REGULAR)
+    status = db.EnumField(Status, default=Status.ACTIVE)
+    cur_missions = db.ListField(EmbeddedDocumentField(cur_mission), required=False, default=[])
+
     meta = {"collection": "Users"}
 
     def check_password(self, password):
