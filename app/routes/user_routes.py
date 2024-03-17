@@ -31,7 +31,7 @@ def logout_route():
 @user.route("/", methods=["GET"])
 @jwt_required()
 def get_info_route():
-    user_id = get_jwt_identity()
+    user_id = get_jwt_identity()["id"]
     return get_info(user_id)
 
 

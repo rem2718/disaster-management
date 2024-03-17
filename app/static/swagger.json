@@ -33,15 +33,18 @@
                             "properties": {
                                 "email": {
                                     "type": "string",
-                                    "example": "user@example.com"
+                                    "example": "user@example.com",
+                                    "required": true
                                 },
                                 "password": {
                                     "type": "string",
-                                    "example": "Password@123"
+                                    "example": "Password@123",
+                                    "required": true
                                 },
                                 "username": {
                                     "type": "string",
-                                    "example": "user123"
+                                    "example": "user123",
+                                    "required": true
                                 }
                             }
                         }
@@ -98,11 +101,13 @@
                             "properties": {
                                 "email_or_username": {
                                     "type": "string",
-                                    "example": "user@example.com"
+                                    "example": "user@example.com",
+                                    "required": true
                                 },
                                 "password": {
                                     "type": "string",
-                                    "example": "Password@123"
+                                    "example": "Password@123",
+                                    "required": true
                                 }
                             }
                         }
@@ -290,7 +295,7 @@
                 ]
             }
         },
-        "user/cur_missions": {
+        "/user/cur_missions": {
             "get": {
                 "tags": [
                     "User Management"
@@ -355,11 +360,13 @@
                             "properties": {
                                 "old_password": {
                                     "type": "string",
-                                    "example": "Old_password123"
+                                    "example": "Old_password123",
+                                    "required": true
                                 },
                                 "new_password": {
                                     "type": "string",
-                                    "example": "New_password123"
+                                    "example": "New_password123",
+                                    "required": true
                                 }
                             }
                         }
@@ -416,11 +423,13 @@
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "example": "Robot1"
+                                    "example": "Robot1",
+                                    "required": true
                                 },
                                 "mac": {
                                     "type": "string",
-                                    "example": "00:0a:95:9d:68:16"
+                                    "example": "00:0a:95:9d:68:16",
+                                    "required": true
                                 },
                                 "type": {
                                     "type": "int",
@@ -482,7 +491,8 @@
                             "properties": {
                                 "robot_id": {
                                     "type": "string",
-                                    "example": "6055a0ae80e90e08641e22ef"
+                                    "example": "6055a0ae80e90e08641e22ef",
+                                    "required": true
                                 }
                             }
                         }
@@ -536,7 +546,8 @@
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "example": "Mission ABC"
+                                    "example": "Mission ABC",
+                                    "required": true
                                 },
                                 "start_date": {
                                     "type": "string",

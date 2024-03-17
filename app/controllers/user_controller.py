@@ -1,4 +1,4 @@
-from mongoengine.errors import DoesNotExist
+from mongoengine.errors import DoesNotExist, ValidationError
 from mongoengine.queryset.visitor import Q
 from flask import jsonify
 
@@ -26,6 +26,9 @@ def signup(email, password, username):
             "token": token,
         }
         return jsonify(data), 201
+
+    except ValidationError as ve:
+        return err_res(400, str(ve.message))
 
     except Exception as e:
         return err_res(500, str(e))
@@ -99,7 +102,15 @@ def get_cur_missions(user_id):
             return err_res(400, "Invalid token")
 
         user = User.objects.get(id=user_id)
-        data = {"cur_missions": user.cur_missions}
+        missions = [
+            {
+                "mission_id": str(mission._id),
+                "name": mission.name,
+                "status": mission.status.value,
+            }
+            for mission in user.cur_missions
+        ]
+        data = {"cur_missions": missions}
         return jsonify(data), 200
 
     except DoesNotExist:
@@ -141,10 +152,13 @@ def update_info(user_id, username, email):
         user.save()
         data = {
             "message": "User information is updated successfully.",
-            "email": email,
-            "username": username,
+            "email": user.email,
+            "username": user.username,
         }
         return jsonify(data), 200
+
+    except ValidationError as ve:
+        return err_res(400, str(ve))
 
     except DoesNotExist:
         return err_res(404, "User not found.")
@@ -182,5 +196,3 @@ def update_password(user_id, old_password, new_password):
 
     except Exception as e:
         return err_res(500, str(e))
-
-

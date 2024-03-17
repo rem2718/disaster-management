@@ -1,4 +1,4 @@
-from mongoengine.errors import DoesNotExist
+from mongoengine.errors import DoesNotExist, ValidationError
 from flask import jsonify
 
 from app.models.robot_model import Robot
@@ -18,7 +18,10 @@ def register(name, mac, type):
         robot.save()
         data = {"message": "Robot registered successfully.", "robot_id": str(robot.id)}
         return jsonify(data), 201
-
+    
+    except ValidationError as ve:
+        return err_res(400, str(ve))
+    
     except Exception as e:
         return err_res(500, str(e))
 
