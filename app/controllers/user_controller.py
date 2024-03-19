@@ -21,7 +21,7 @@ def signup(email, password, username):
         user.save()
         token = user.generate_token()
         data = {
-            "message": "User created successfully.",
+            "message": "User created successfully. Use the same credentials to establish a connection with the Cloud MQTT broker.",
             "user_id": str(user.id),
             "token": token,
         }

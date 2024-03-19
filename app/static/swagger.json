@@ -58,7 +58,7 @@
                             "properties": {
                                 "message": {
                                     "type": "string",
-                                    "example": "User created successfully."
+                                    "example": "User created successfully. Use the same credentials to establish a connection with the Cloud MQTT broker."
                                 },
                                 "user_id": {
                                     "type": "string",
