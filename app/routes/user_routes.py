@@ -58,3 +58,9 @@ def update_password_route():
     old_password = request.json.get("old_password", None)
     new_password = request.json.get("new_password", None)
     return update_password(user_id, old_password, new_password)
+
+@user.route("/<user_id>", methods=["DELETE"])
+@jwt_required
+def delete_user_route(user_id):
+    user_type = get_jwt_identity()["type"]
+    return delete_user(user_type, user_id)

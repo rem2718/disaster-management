@@ -121,7 +121,11 @@
                             "properties": {
                                 "message": {
                                     "type": "string",
-                                    "example": "User Hilal loggedin successfully."
+                                    "example": "User layla21 loggedin successfully."
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "example": "layla21"
                                 },
                                 "token": {
                                     "type": "string",
@@ -405,25 +409,25 @@
                 ]
             }
         },
-        "/robot": {
+        "/device": {
             "post": {
                 "tags": [
-                    "Robot Management"
+                    "Device Management"
                 ],
-                "summary": "Robot Registration",
-                "description": "Register a new robot",
+                "summary": "Device Registration",
+                "description": "Register a new device",
                 "parameters": [
                     {
                         "name": "body",
                         "in": "body",
-                        "description": "Robot data",
+                        "description": "Device data",
                         "required": true,
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "example": "Robot1",
+                                    "example": "Device1",
                                     "required": true
                                 },
                                 "mac": {
@@ -441,15 +445,15 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Robot registered successfully",
+                        "description": "Device registered successfully",
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "message": {
                                     "type": "string",
-                                    "example": "Robot registered successfully."
+                                    "example": "Device registered successfully."
                                 },
-                                "robot_id": {
+                                "device_id": {
                                     "type": "string",
                                     "example": "6055a0ae20e90e08641e22ef"
                                 }
@@ -459,8 +463,11 @@
                     "400": {
                         "description": "Bad Request"
                     },
+                    "401": {
+                        "description": "Unauthorized Error - Admin access is required"
+                    },
                     "409": {
-                        "description": "Conflict - A robot with the same MAC address is already registered"
+                        "description": "Conflict - A device with the same MAC address is already registered"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -473,23 +480,23 @@
                 ]
             }
         },
-        "/robot/deactivate": {
+        "/device/deactivate": {
             "put": {
                 "tags": [
-                    "Robot Management"
+                    "Device Management"
                 ],
-                "summary": "Robot Deactivation",
-                "description": "Deactivate a robot",
+                "summary": "Device Deactivation",
+                "description": "Deactivate a device",
                 "parameters": [
                     {
                         "name": "body",
                         "in": "body",
-                        "description": "Robot ID",
+                        "description": "Device ID",
                         "required": true,
                         "schema": {
                             "type": "object",
                             "properties": {
-                                "robot_id": {
+                                "device_id": {
                                     "type": "string",
                                     "example": "6055a0ae80e90e08641e22ef",
                                     "required": true
@@ -500,13 +507,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Robot is deactivated successfully",
+                        "description": "Device is deactivated successfully",
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "message": {
                                     "type": "string",
-                                    "example": "Robot is deactivated successfully."
+                                    "example": "Device is deactivated successfully."
                                 }
                             }
                         }
@@ -514,8 +521,14 @@
                     "400": {
                         "description": "Bad Request"
                     },
+                    "401": {
+                        "description": "Unauthorized Error - Admin access is required"
+                    },
                     "404": {
-                        "description": "Not Found - Robot not found"
+                        "description": "Not Found - Device not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Device is already Inactive"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -549,12 +562,7 @@
                                     "example": "Mission ABC",
                                     "required": true
                                 },
-                                "start_date": {
-                                    "type": "string",
-                                    "format": "date-time",
-                                    "example": "2024-03-14 06:06:28.018762"
-                                },
-                                "robot_ids": {
+                                "device_ids": {
                                     "type": "array",
                                     "items": {
                                         "type": "string",
@@ -591,6 +599,15 @@
                     },
                     "400": {
                         "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized Error - Admin access is required"
+                    },
+                    "404": {
+                        "description": "Not Found - Device/User not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Mission name is already taken"
                     },
                     "500": {
                         "description": "Internal Server Error"
@@ -648,7 +665,7 @@
                                     "type": "int",
                                     "example": 1
                                 },
-                                "robots": {
+                                "devices": {
                                     "type": "array",
                                     "items": {
                                         "type": "object",
@@ -659,7 +676,7 @@
                                             },
                                             "name": {
                                                 "type": "string",
-                                                "example": "Robot1"
+                                                "example": "Device1"
                                             },
                                             "type": {
                                                 "type": "int",

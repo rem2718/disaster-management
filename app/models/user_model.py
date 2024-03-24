@@ -7,13 +7,13 @@ from mongoengine import EmbeddedDocumentField
 from app.utils.enums import UserType, Status, MissionStatus
 from app.utils.extensions import db, bcrypt
 
+
 class cur_mission(db.EmbeddedDocument):
     _id = db.ObjectIdField(default=None)
     name = db.StringField()
     status = db.EnumField(MissionStatus, default=MissionStatus.CREATED)
-    meta = {
-        'collection': 'cur_missions'  
-    }
+    meta = {"collection": "cur_missions"}
+
 
 class User(db.Document):
     email = db.EmailField(required=True)
@@ -21,7 +21,9 @@ class User(db.Document):
     username = db.StringField(required=True)
     type = db.EnumField(UserType, default=UserType.REGULAR)
     status = db.EnumField(Status, default=Status.ACTIVE)
-    cur_missions = db.ListField(EmbeddedDocumentField(cur_mission), required=False, default=[])
+    cur_missions = db.ListField(
+        EmbeddedDocumentField(cur_mission), required=False, default=[]
+    )
 
     meta = {"collection": "Users"}
 
@@ -29,7 +31,7 @@ class User(db.Document):
         return bcrypt.check_password_hash(self.password, password)
 
     def generate_token(self):
-        ident = {"id": str(self.id)}
+        ident = {"id": str(self.id), "type": self.type.value}
         return create_access_token(identity=ident, expires_delta=timedelta(hours=24))
 
     @staticmethod
@@ -48,3 +50,7 @@ class User(db.Document):
     def is_email(string):
         email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return re.match(email_pattern, string) is not None
+
+    @staticmethod
+    def is_admin(type):
+        return type == UserType.ADMIN.value

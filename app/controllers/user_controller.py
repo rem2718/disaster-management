@@ -4,11 +4,12 @@ from flask import jsonify
 
 from app.utils.extensions import bcrypt, err_res
 from app.models.user_model import User
+from app.utils.enums import Status
 
 
 def signup(email, password, username):
     try:
-        existing_user = User.objects(Q(email=email) | Q(username=username)).first()
+        existing_user = User.objects((Q(email=email) | Q(username=username)) & Q(status__ne=Status.INACTIVE)).first()
         if existing_user:
             return err_res(409, "Email or Username is already taken.")
 
@@ -19,6 +20,7 @@ def signup(email, password, username):
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         user = User(email=email, password=hashed_password, username=username)
         user.save()
+        # create mqtt creds for the user
         token = user.generate_token()
         data = {
             "message": "User created successfully. Use the same credentials to establish a connection with the Cloud MQTT broker.",
@@ -53,6 +55,7 @@ def login(email_or_username, password):
         token = user.generate_token()
         data = {
             "message": f"User {user.username} loggedin successfully.",
+            "username": user.username,
             "token": token,
         }
         return jsonify(data), 200
@@ -191,6 +194,21 @@ def update_password(user_id, old_password, new_password):
         user.save()
         return jsonify({"message": "Password is updated successfully."}), 200
 
+    except DoesNotExist:
+        return err_res(404, "User not found.")
+
+    except Exception as e:
+        return err_res(500, str(e))
+
+def delete_user(user_type, user_id):
+    try:
+        if not User.is_admin(user_type):
+            return err_res(401, "Admin access is required.")
+        
+        user = User.objects.get(id=user_id)
+        user.status = Status.INACTIVE
+        user.save()
+        # delete mqtt creds for that user
     except DoesNotExist:
         return err_res(404, "User not found.")
 

@@ -6,10 +6,12 @@ class UserType(Enum):
     ADMIN = 2
 
 
-class RobotType(Enum):
+class DeviceType(Enum):
     UGV = 1
     UAV = 2
     DOG = 3
+    CHARGING_STATION = 4
+    BROKER = 5
 
 
 class Status(Enum):
@@ -24,3 +26,11 @@ class MissionStatus(Enum):
     PAUSED = 3
     CANCELED = 4
     FINISHED = 5
+
+
+class MissionCommand(Enum):
+    START = 1
+    PAUSE = 2
+    CONTINUE = 3
+    CANCEL = 4
+    END = 5
