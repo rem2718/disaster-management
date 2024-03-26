@@ -1,12 +1,12 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class UserType(Enum):
+class UserType(IntEnum):
     REGULAR = 1
     ADMIN = 2
 
 
-class DeviceType(Enum):
+class DeviceType(IntEnum):
     UGV = 1
     UAV = 2
     DOG = 3
@@ -14,13 +14,13 @@ class DeviceType(Enum):
     BROKER = 5
 
 
-class Status(Enum):
+class Status(IntEnum):
     ACTIVE = 1
     ASSIGNED = 2
     INACTIVE = 3
 
 
-class MissionStatus(Enum):
+class MissionStatus(IntEnum):
     CREATED = 1
     ONGOING = 2
     PAUSED = 3
@@ -28,7 +28,7 @@ class MissionStatus(Enum):
     FINISHED = 5
 
 
-class MissionCommand(Enum):
+class MissionCommand(IntEnum):
     START = 1
     PAUSE = 2
     CONTINUE = 3

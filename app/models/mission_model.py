@@ -12,3 +12,14 @@ class Mission(db.Document):
     device_ids = db.ListField(db.ReferenceField(Device), default=[])
     user_ids = db.ListField(db.ReferenceField(User), default=[])
     meta = {"collection": "Missions"}
+
+    def __repr__(self):
+        return (
+            f"<Mission:\n"
+            f"name: {self.name}\n"
+            f"start_date: {self.start_date}\n"
+            f"end_date: {self.end_date}\n"
+            f"status: {self.status}\n"
+            f"device_ids: {[str(dev.id) for dev in self.device_ids]}\n"
+            f"user_ids: {[str(user.id) for user in self.user_ids]}>"
+        )

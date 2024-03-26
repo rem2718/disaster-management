@@ -19,7 +19,8 @@ def create_route():
 @mission.route("/<mission_id>", methods=["GET"])
 @jwt_required()
 def get_info_route(mission_id):
-    return get_info(mission_id)
+    user_type = get_jwt_identity()["type"]
+    return get_info(user_type, mission_id)
 
 
 @mission.route("/", methods=["PUT"])

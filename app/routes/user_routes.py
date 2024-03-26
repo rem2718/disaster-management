@@ -3,6 +3,9 @@ from flask import Blueprint, request
 
 from app.controllers.user_controller import *
 
+DEF_PAGE_NUM = 1
+DEF_PAGE_SIZE = 5
+
 user = Blueprint("user_routes", __name__, url_prefix="/user")
 
 
@@ -35,6 +38,22 @@ def get_info_route():
     return get_info(user_id)
 
 
+@user.route("/<user_id>", methods=["GET"])
+@jwt_required()
+def get_user_info_route(user_id):
+    user_type = get_jwt_identity()["type"]
+    return get_user_info(user_type, user_id)
+
+
+@user.route("/all", methods=["GET"])
+@jwt_required()
+def get_all_route():
+    user_type = get_jwt_identity()["type"]
+    page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
+    page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
+    return get_all(user_type, page_number, page_size)
+
+
 @user.route("/cur_missions", methods=["GET"])
 @jwt_required()
 def get_cur_missions_route():
@@ -59,8 +78,9 @@ def update_password_route():
     new_password = request.json.get("new_password", None)
     return update_password(user_id, old_password, new_password)
 
+
 @user.route("/<user_id>", methods=["DELETE"])
-@jwt_required
+@jwt_required()
 def delete_user_route(user_id):
     user_type = get_jwt_identity()["type"]
     return delete_user(user_type, user_id)
