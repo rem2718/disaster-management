@@ -8,6 +8,8 @@ DEF_PAGE_SIZE = 5
 
 device = Blueprint("device_routes", __name__, url_prefix="/device")
 
+# check brokers
+
 
 @device.route("/", methods=["POST"])
 @jwt_required()
@@ -30,23 +32,19 @@ def get_info_route(device_id):
 @jwt_required()
 def get_all_route():
     user_type = get_jwt_identity()["type"]
-    page_number = int(request.args.get("page-number"), DEF_PAGE_NUM)
-    page_size = int(request.args.get("page-size"), DEF_PAGE_SIZE)
+    page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
+    page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
     return get_all(user_type, page_number, page_size)
 
 
 @device.route("/<device_id>", methods=["PUT"])
-@jwt_required
+@jwt_required()
 def update_route(device_id):
     user_type = get_jwt_identity()["type"]
     name = request.json.get("name", None)
     mac = request.json.get("mac", None)
     type = request.json.get("type", None)
     return update(user_type, device_id, name, mac, type)
-
-
-# check brokers
-# list of missions (name is unique)
 
 
 @device.route("/<device_id>", methods=["DELETE"])

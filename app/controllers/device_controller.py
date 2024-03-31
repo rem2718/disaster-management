@@ -1,7 +1,10 @@
+from bson import ObjectId
+
 from mongoengine.queryset.visitor import Q
 from flask import jsonify
 
 from app.utils.enums import Status, DeviceType
+from app.models.mission_model import Mission
 from app.models.device_model import Device
 from app.utils.validators import *
 from app.utils.extensions import *
@@ -13,11 +16,10 @@ MAX_LENGTH = 20
 @authorize_admin
 @handle_exceptions
 def register(user_type, name, mac, type):
-    minlength_validator("Name", name, 3)
-    minlength_validator("Name", name, 20)
+    minlength_validator("Name", name, MIN_LENGTH)
+    maxlength_validator("Name", name, MAX_LENGTH)
     mac_validator(mac)
     enum_validator("device", type, DeviceType)
-
     existing_device = Device.objects(
         (Q(mac=mac) | Q(name=name)) & (Q(status__ne=Status.INACTIVE))
     ).first()
@@ -26,7 +28,10 @@ def register(user_type, name, mac, type):
 
     device = Device(name=name, mac=mac, type=type)
     device.save()
-    data = {"message": "Device registered successfully.", "device_id": str(device.id)}
+    data = {
+        "message": "Device is registered successfully.",
+        "device_id": str(device.id),
+    }
     return jsonify(data), 201
 
 
@@ -37,7 +42,7 @@ def get_info(user_type, device_id):
     device = Device.objects.get(id=device_id)
     data = {
         "device_id": str(device.id),
-        "name": device.namr,
+        "name": device.name,
         "mac": device.mac,
         "type": device.type,
         "status": device.status,
@@ -49,8 +54,9 @@ def get_info(user_type, device_id):
 @handle_exceptions
 def get_all(user_type, page_number, page_size):
     offset = (page_number - 1) * page_size
-    users = Device.objects.only("id", "name").skip(offset).limit(page_size)
-    return jsonify(users), 200
+    devices = Device.objects.skip(offset).limit(page_size)
+    data = [{"id": str(device.id), "name": device.name} for device in devices]
+    return jsonify(data), 200
 
 
 @authorize_admin
@@ -60,7 +66,7 @@ def update(user_type, device_id, name, mac, type):
 
     if name:
         if device.name != name:
-            existing_device = Device.objects(username=name).first()
+            existing_device = Device.objects(name=name).first()
             if existing_device:
                 return err_res(409, "Name is already taken.")
         else:
@@ -102,10 +108,13 @@ def deactivate(user_type, device_id):
     device = Device.objects.get(id=device_id)
     if device.status == Status.INACTIVE:
         return err_res(409, "Device is already Inactive.")
-    # for cur_mission in user.cur_missions:
-    #     mission = Mission.objects.get(id=cur_mission.id)
-    #     mission.user_ids.remove(user_id)
-    # user.cur_missions = []
-    device.status = Status.INACTIVE
-    device.save()
+    
+    missions = Mission.objects(
+        device_ids__in=[ObjectId(device_id)],
+        status__in=[MissionStatus.CREATED, MissionStatus.ONGOING, MissionStatus.PAUSED],
+    )
+    for mission in missions:
+        mission.update(pull__device_ids=ObjectId(device_id))
+
+    Device.objects(id=device_id).update(set__status=Status.INACTIVE)
     return jsonify({"message": "Device is deactivated successfully."}), 200

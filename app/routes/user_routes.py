@@ -3,6 +3,8 @@ from flask import Blueprint, request
 
 from app.controllers.user_controller import *
 
+# admin give and approve users
+
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
 

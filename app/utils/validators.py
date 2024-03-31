@@ -47,8 +47,8 @@ def mac_validator(mac):
 
 
 def enum_validator(enum_name, value, enum):
-    if value not in enum:
-        raise ValidationError(f"{enum} is not a valid {enum_name} type")
+    if value not in [member.value for member in enum]:
+        raise ValidationError(f"{value} is not a valid {enum_name} type")
 
 
 def device_validator(device_ids):

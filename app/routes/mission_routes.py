@@ -45,3 +45,6 @@ def status_route():
     mission_id = request.json.get("mission_id", None)
     command = request.json.get("command", None)
     return change_status(user_type, mission_id, command)
+
+
+# list of missions (name is unique)

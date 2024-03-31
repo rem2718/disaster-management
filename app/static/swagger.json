@@ -481,7 +481,7 @@
                     "User Management"
                 ],
                 "summary": "User Current Missions Retrievement",
-                "description": "Retrieve all missions in which the user is currently participating actively\n\nMission Statuses(enum):\n1: CREATED\n2: ONGOING\n3: PAUSED",
+                "description": "Retrieve all missions in which the user is currently participating actively\n\nMission Statuses`(enum)`:\n1: CREATED\n2: ONGOING\n3: PAUSED",
                 "responses": {
                     "200": {
                         "description": "List of all the current missions",
@@ -591,7 +591,7 @@
                     "Device Management"
                 ],
                 "summary": "Device Registration",
-                "description": "Register a new device",
+                "description": "Register a new device\nName and MAC Address must be unique",
                 "parameters": [
                     {
                         "name": "body",
@@ -656,29 +656,168 @@
                 ]
             }
         },
-        "/device/deactivate": {
-            "put": {
+        "/device/{device_id}": {
+            "get": {
                 "tags": [
                     "Device Management"
                 ],
-                "summary": "Device Deactivation",
-                "description": "Deactivate a device",
+                "summary": "Device Info Retrievement [ADMIN]",
+                "description": "Get Device Information for Admin interface",
                 "parameters": [
                     {
-                        "name": "body",
-                        "in": "body",
-                        "description": "Device ID",
+                        "name": "device_id",
+                        "in": "path",
+                        "description": "ID of the device to retrieve",
                         "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON object of device information",
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "device_id": {
                                     "type": "string",
-                                    "example": "6055a0ae80e90e08641e22ef",
-                                    "required": true
+                                    "example": "6055a0ae80e90e08641e22ef"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "Robot1"
+                                },
+                                "mac": {
+                                    "type": "string",
+                                    "example": "00:0a:95:9d:68:16"
+                                },
+                                "type": {
+                                    "type": "int",
+                                    "example": 1
+                                },
+                                "status": {
+                                    "type": "int",
+                                    "example": 1
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid token"
+                    },
+                    "404": {
+                        "description": "Not Found - Device not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Device Info Update [ADMIN]",
+                "description": "update name, mac, or type for the Device\n\nDevice Types:\n1: UGV\n2: UAV\n3: DOG\n4: CHARGING_STATION\n 5: BROKER",
+                "parameters": [
+                    {
+                        "name": "device_id",
+                        "in": "path",
+                        "description": "ID of the device to update",
+                        "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Device data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "new_name"
+                                },
+                                "mac": {
+                                    "type": "string",
+                                    "example": "00:0a:95:9d:68:16"
+                                },
+                                "type": {
+                                    "type": "int",
+                                    "example": 2
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Device information is updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Device information is updated successfully."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "Robot1"
+                                },
+                                "mac": {
+                                    "type": "string",
+                                    "example": "00:0a:95:9d:68:16"
+                                },
+                                "type": {
+                                    "type": "int",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized Error - Admin access is required"
+                    },
+                    "404": {
+                        "description": "Not Found - Device not found"
+                    },
+                    "409": {
+                        "description": "Conflict"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Device Deactivation [ADMIN]",
+                "description": "Deactivate a device",
+                "parameters": [
+                    {
+                        "name": "device_id",
+                        "in": "path",
+                        "description": "ID of the device to deactivate",
+                        "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
                     }
                 ],
                 "responses": {
@@ -704,10 +843,79 @@
                         "description": "Not Found - Device not found"
                     },
                     "409": {
-                        "description": "Conflict - Device is already Inactive"
+                        "description": "Conflict"
                     },
                     "500": {
                         "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/device/all": {
+            "get": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Device List Retrievement [ADMIN]",
+                "description": "Get list of devices with pagenation for Admin interface",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page-number",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "Page number",
+                        "default": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "page-size",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "Number of items per page",
+                        "default": 5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "example": "6055a0ae80e90e08641e22ef"
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "example": "Robot1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 },
                 "security": [
