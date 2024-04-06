@@ -12,6 +12,7 @@ class Device(db.Document):
     def __repr__(self):
         return (
             f"<Device:\n"
+            f"id: {str(self.id)}\n"
             f"name: {self.name}\n"
             f"mac: {self.mac}\n"
             f"status: {Status(self.status).name}\n"

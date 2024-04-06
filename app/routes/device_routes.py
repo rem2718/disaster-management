@@ -6,9 +6,10 @@ from app.controllers.device_controller import *
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
 
-device = Blueprint("device_routes", __name__, url_prefix="/device")
+device = Blueprint("device_routes", __name__, url_prefix="/devices")
 
-# check brokers
+#TO-DO: check brokers
+#TO-DO: authentication for device regestration
 
 
 @device.route("/", methods=["POST"])

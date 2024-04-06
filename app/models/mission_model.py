@@ -16,6 +16,7 @@ class Mission(db.Document):
     def __repr__(self):
         return (
             f"<Mission:\n"
+            f"id: {str(self.id)}\n"
             f"name: {self.name}\n"
             f"start_date: {self.start_date}\n"
             f"end_date: {self.end_date}\n"

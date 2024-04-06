@@ -33,6 +33,7 @@ def signup(email, password, username):
     data = {
         "message": "User created successfully. Use the same credentials to establish a connection with the Cloud MQTT broker.",
         "user_id": str(user.id),
+        "type": user.type.value,
         "token": token,
     }
     return jsonify(data), 201

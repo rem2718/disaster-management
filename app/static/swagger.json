@@ -15,7 +15,7 @@
         }
     },
     "paths": {
-        "/user/signup": {
+        "/users/signup": {
             "post": {
                 "tags": [
                     "User Management"
@@ -83,7 +83,7 @@
                 }
             }
         },
-        "/user/login": {
+        "/users/login": {
             "post": {
                 "tags": [
                     "User Management"
@@ -106,7 +106,7 @@
                                 },
                                 "password": {
                                     "type": "string",
-                                    "example": "Password@123",
+                                    "example": "New_password123",
                                     "required": true
                                 }
                             }
@@ -146,7 +146,7 @@
                 }
             }
         },
-        "/user/logout": {
+        "/users/logout": {
             "post": {
                 "tags": [
                     "User Management"
@@ -187,7 +187,7 @@
                 ]
             }
         },
-        "/user": {
+        "/users": {
             "get": {
                 "tags": [
                     "User Management"
@@ -299,7 +299,7 @@
                 ]
             }
         },
-        "/user/{user_id}": {
+        "/users/{user_id}": {
             "get": {
                 "tags": [
                     "User Management"
@@ -406,7 +406,7 @@
                 ]
             }
         },
-        "/user/all": {
+        "/users/all": {
             "get": {
                 "tags": [
                     "User Management"
@@ -475,7 +475,7 @@
                 ]
             }
         },
-        "/user/cur_missions": {
+        "/users/cur_missions": {
             "get": {
                 "tags": [
                     "User Management"
@@ -522,7 +522,7 @@
                 ]
             }
         },
-        "/user/password": {
+        "/users/password": {
             "put": {
                 "tags": [
                     "User Management"
@@ -585,7 +585,7 @@
                 ]
             }
         },
-        "/device": {
+        "/devices": {
             "post": {
                 "tags": [
                     "Device Management"
@@ -656,7 +656,7 @@
                 ]
             }
         },
-        "/device/{device_id}": {
+        "/devices/{device_id}": {
             "get": {
                 "tags": [
                     "Device Management"
@@ -856,7 +856,7 @@
                 ]
             }
         },
-        "/device/all": {
+        "/devices/all": {
             "get": {
                 "tags": [
                     "Device Management"
@@ -925,12 +925,12 @@
                 ]
             }
         },
-        "/mission": {
+        "/missions": {
             "post": {
                 "tags": [
                     "Mission Management"
                 ],
-                "summary": "Mission Creation",
+                "summary": "Mission Creation [ADMIN]",
                 "description": "Create a new mission with the provided details",
                 "parameters": [
                     {
@@ -1004,7 +1004,7 @@
                 ]
             }
         },
-        "/mission/{mission_id}": {
+        "/missions/{mission_id}": {
             "get": {
                 "tags": [
                     "Mission Management"
@@ -1077,6 +1077,245 @@
                     },
                     "500": {
                         "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Mission Management"
+                ],
+                "summary": "Mission Info Update [ADMIN]",
+                "description": "update name, device_ids, user_ids, start_date or end_date for the Mission",
+                "parameters": [
+                    {
+                        "name": "mission_id",
+                        "in": "path",
+                        "description": "ID of the mission to update",
+                        "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Mission data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Mission ABC",
+                                    "required": true
+                                },
+                                "device_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "65f268f122c3647c263a1a79"
+                                    }
+                                },
+                                "user_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "65f64a53767178df500184ec"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mission information is updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Mission information is updated successfully."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "example": "Mission ABC"
+                                },
+                                "device_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "65f268f122c3647c263a1a79"
+                                    }
+                                },
+                                "user_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "example": "65f64a53767178df500184ec"
+                                    }
+                                },
+                                "start_date": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2020-02-01T10:11:30"
+                                },
+                                "end_date": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2020-02-04T06:00:34"
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad Request"
+                        },
+                        "401": {
+                            "description": "Unauthorized Error - Admin access is required"
+                        },
+                        "404": {
+                            "description": "Not Found - Mission not found"
+                        },
+                        "409": {
+                            "description": "Conflict"
+                        },
+                        "500": {
+                            "description": "Internal Server Error"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/missions/all": {
+            "get": {
+                "tags": [
+                    "Mission Management"
+                ],
+                "summary": "Mission List Retrievement [ADMIN]",
+                "description": "Get list of missions with pagenation for Admin interface",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page-number",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "Page number",
+                        "default": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "page-size",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "Number of items per page",
+                        "default": 5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "example": "6055a0ae80e90e08641e22ef"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "mission A"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/missions/{mission_id}/{command}": {
+            "put": {
+                "tags": [
+                    "Mission Management"
+                ],
+                "summary": "Mission Status Update [ADMIN]",
+                "description": "update status for the Mission\n\nCommands:\n-start\n-pause\n-continue\n-cancel\n-end",
+                "parameters": [
+                    {
+                        "name": "mission_id",
+                        "in": "path",
+                        "description": "ID of the mission to update",
+                        "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
+                    },
+                    {
+                        "name": "command",
+                        "in": "path",
+                        "description": "command for the mission to update the status",
+                        "required": true,
+                        "type": "string",
+                        "example": "start"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mission information is updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Mission status is updated successfully."
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad Request"
+                        },
+                        "401": {
+                            "description": "Unauthorized Error - Admin access is required"
+                        },
+                        "404": {
+                            "description": "Not Found - Mission not found"
+                        },
+                        "409": {
+                            "description": "Conflict"
+                        },
+                        "500": {
+                            "description": "Internal Server Error"
+                        }
                     }
                 },
                 "security": [

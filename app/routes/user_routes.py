@@ -3,12 +3,12 @@ from flask import Blueprint, request
 
 from app.controllers.user_controller import *
 
-# admin give and approve users
+#TO-DO: admin give and approve users
 
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
 
-user = Blueprint("user_routes", __name__, url_prefix="/user")
+user = Blueprint("user_routes", __name__, url_prefix="/users")
 
 
 @user.route("/signup", methods=["POST"])

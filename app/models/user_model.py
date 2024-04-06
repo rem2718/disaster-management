@@ -30,6 +30,7 @@ class User(db.Document):
     def __repr__(self):
         return (
             f"<User:\n"
+            f"id: {str(self.id)}\n"
             f"username: {self.username}\n"
             f"email: {self.email}\n"
             f"password: {self.password}\n"

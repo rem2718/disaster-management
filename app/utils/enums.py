@@ -26,11 +26,3 @@ class MissionStatus(IntEnum):
     PAUSED = 3
     CANCELED = 4
     FINISHED = 5
-
-
-class MissionCommand(IntEnum):
-    START = 1
-    PAUSE = 2
-    CONTINUE = 3
-    CANCEL = 4
-    END = 5

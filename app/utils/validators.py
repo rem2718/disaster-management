@@ -52,9 +52,7 @@ def enum_validator(enum_name, value, enum):
 
 
 def device_validator(device_ids):
-    existing_devices = Device.objects(
-        Q(id__in=device_ids) & Q(status__ne=Status.INACTIVE)
-    )
+    existing_devices = Device.objects(Q(id__in=device_ids) & Q(status=Status.ACTIVE))
     existing_set = set(str(device.id) for device in existing_devices)
     provided_set = set(device_ids)
     missing_devices = provided_set - existing_set
@@ -74,13 +72,3 @@ def user_validator(user_ids):
         raise DoesNotExist(
             f"Invalid user IDs: {', '.join(str(user_id) for user_id in missing_users)}"
         )
-
-
-def date_validator(start_date, end_date, status):
-    if end_date:
-        if status not in [MissionStatus.CANCELED, MissionStatus.FINISHED]:
-            raise ValidationError(
-                "You can't change end date; the mission isn't finished yet."
-            )
-        if start_date > end_date:
-            raise ValidationError("Start date can't be after end date.")
