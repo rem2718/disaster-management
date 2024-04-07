@@ -3,16 +3,12 @@ from bson import ObjectId
 
 from flask import jsonify
 
-from app.utils.enums import MissionStatus
+from app.utils.enums import MissionStatus, Status
 from app.models.user_model import User, cur_mission
 from app.models.mission_model import Mission
 from app.models.device_model import Device
 from app.utils.validators import *
 from app.utils.extensions import *
-
-
-#TO-DO: users/robots lists for mission
-#TO-DO: number of missions for user
 
 
 def update_cur_mission(mission, type):
@@ -39,7 +35,7 @@ def update_lists(ids_list, case, mission=None):
             for _id in ids_list:
                 user = User.objects.get(id=_id)
                 if len(user.cur_missions) == 1:
-                    user.update(set__cur_missions=[], status=Status.ACTIVE)
+                    user.update(set__cur_missions=[], status=Status.AVAILABLE)
                 else:
                     user.cur_missions = [
                         cur_m
@@ -52,7 +48,7 @@ def update_lists(ids_list, case, mission=None):
             Device.objects(id__in=ids_list).update(set__status=Status.ASSIGNED)
 
         case "delete_device":
-            Device.objects(id__in=ids_list).update(set__status=Status.ACTIVE)
+            Device.objects(id__in=ids_list).update(set__status=Status.AVAILABLE)
 
 
 def split_sets(existing_list, provided_list):
@@ -116,9 +112,14 @@ def get_info(user_type, mission_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size):
+def get_all(user_type, page_number, page_size, status):
     offset = (page_number - 1) * page_size
-    missions = Mission.objects.skip(offset).limit(page_size)
+
+    query = {}
+    if status is not None:
+        query["status"] = status
+
+    missions = Mission.objects(**query).skip(offset).limit(page_size)
     data = [
         {"id": str(mission.id), "name": mission.name, "status": mission.status.value}
         for mission in missions
@@ -203,8 +204,12 @@ def change_status(user_type, mission_id, command):
         case "end":
             if mission.status == MissionStatus.CREATED:
                 return err_res(409, "You can't end a non-starting mission.")
-            update_lists([str(user.id) for user in mission.user_ids], "delete_user", mission)
-            update_lists([str(device.id) for device in mission.device_ids], "delete_device")
+            update_lists(
+                [str(user.id) for user in mission.user_ids], "delete_user", mission
+            )
+            update_lists(
+                [str(device.id) for device in mission.device_ids], "delete_device"
+            )
             mission.status = MissionStatus.FINISHED
             mission.end_date = datetime.now()
         case _:

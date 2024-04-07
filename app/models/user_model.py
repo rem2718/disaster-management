@@ -20,7 +20,7 @@ class User(db.Document):
     password = db.StringField(required=True)
     username = db.StringField(required=True)
     type = db.EnumField(UserType, default=UserType.REGULAR)
-    status = db.EnumField(Status, default=Status.ACTIVE)
+    status = db.EnumField(Status, default=Status.PENDING)
     cur_missions = db.ListField(
         EmbeddedDocumentField(cur_mission), required=False, default=[]
     )

@@ -3,7 +3,7 @@ from bson import ObjectId
 from mongoengine.queryset.visitor import Q
 from flask import jsonify
 
-from app.utils.enums import Status, DeviceType
+from app.utils.enums import Status, DeviceType, MissionStatus
 from app.models.mission_model import Mission
 from app.models.device_model import Device
 from app.utils.validators import *
@@ -52,10 +52,31 @@ def get_info(user_type, device_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size):
+def get_all(user_type, page_number, page_size, status, type, mission_id):
     offset = (page_number - 1) * page_size
-    devices = Device.objects.skip(offset).limit(page_size)
-    data = [{"id": str(device.id), "name": device.name} for device in devices]
+    query, data = {}, []
+
+    if status is not None:
+        query["status"] = status
+    if type is not None:
+        query["type"] = type
+    devices = Device.objects(**query).skip(offset).limit(page_size)
+
+    if mission_id is not None:
+        mission_devs = []
+        mission = Mission.objects.get(id=mission_id)
+        for dev in mission.device_ids:
+            mission_devs.append(str(dev.id))
+            device = Device.objects.get(id=str(dev.id))
+            data.append({"id": str(device.id), "name": device.name, "in_mission": True})
+        data += [
+            {"id": str(device.id), "name": device.name, "in_mission": False}
+            for device in devices
+            if str(device.id) not in mission_devs
+        ]
+    else:
+        data = [{"id": str(device.id), "name": device.name} for device in devices]
+
     return jsonify(data), 200
 
 
@@ -108,7 +129,7 @@ def deactivate(user_type, device_id):
     device = Device.objects.get(id=device_id)
     if device.status == Status.INACTIVE:
         return err_res(409, "Device is already Inactive.")
-    
+
     missions = Mission.objects(
         device_ids__in=[ObjectId(device_id)],
         status__in=[MissionStatus.CREATED, MissionStatus.ONGOING, MissionStatus.PAUSED],

@@ -16,13 +16,15 @@ jwt = JWTManager()
 def err_res(code, data):
     match code:
         case 400:
-            err = "Bad Request"
+            err = "Bad Request Error"
         case 401:
             err = "Unauthorized Error"
+        case 403:
+            err = "Forbidden Error"
         case 404:
             err = "Not Found Error"
         case 409:
-            err = "Conflict"
+            err = "Conflict Error"
         case 500:
             err = "Internal Server Error"
 
@@ -49,7 +51,7 @@ def authorize_admin(func):
     def wrapper(*args, **kwargs):
         user_type = args[0]
         if user_type != UserType.ADMIN.value:
-            return err_res(401, "Admin access is required.")
+            return err_res(403, "Admin access is required.")
         else:
             return func(*args, **kwargs)
 

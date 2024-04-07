@@ -3,7 +3,7 @@ from flask import Blueprint, request
 
 from app.controllers.mission_controller import *
 
-mission = Blueprint("mission_routes", __name__, url_prefix="/missions")
+mission = Blueprint("mission_routes", __name__, url_prefix="/api/missions")
 
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
@@ -33,7 +33,8 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
-    return get_all(user_type, page_number, page_size)
+    status = int(request.args.get("status")) if request.args.get("status") is not None else None
+    return get_all(user_type, page_number, page_size, status)
 
 
 @mission.route("/<mission_id>", methods=["PUT"])

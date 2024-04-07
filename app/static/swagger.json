@@ -15,7 +15,7 @@
         }
     },
     "paths": {
-        "/users/signup": {
+        "/api/users/signup": {
             "post": {
                 "tags": [
                     "User Management"
@@ -51,22 +51,14 @@
                     }
                 ],
                 "responses": {
-                    "201": {
+                    "202": {
                         "description": "User created successfully",
                         "schema": {
                             "type": "object",
                             "properties": {
                                 "message": {
                                     "type": "string",
-                                    "example": "User created successfully. Use the same credentials to establish a connection with the Cloud MQTT broker."
-                                },
-                                "user_id": {
-                                    "type": "string",
-                                    "example": "6055a0ae80e90e08641e22ef"
-                                },
-                                "token": {
-                                    "type": "string",
-                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjA1NWEwYWU4MGU5MGUwODY0MWUyMmVmIiwiaWF0IjoxNjYxNDM3NTQzLCJleHAiOjE2NjE0NDEyNDN9.T6PlvZxId2GJWnT5SyZgnkr0-pUgBp9_1l1dUKhxO54"
+                                    "example": "User created successfully. Once you receive approval from the admin, you can access your account and establish a connection with the Cloud MQTT broker using the same credentials."
                                 }
                             }
                         }
@@ -83,7 +75,7 @@
                 }
             }
         },
-        "/users/login": {
+        "/api/users/login": {
             "post": {
                 "tags": [
                     "User Management"
@@ -127,6 +119,10 @@
                                     "type": "string",
                                     "example": "layla21"
                                 },
+                                "type": {
+                                    "type": "int",
+                                    "example": 1
+                                },
                                 "token": {
                                     "type": "string",
                                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjA1NWEwYWU4MGU5MGUwODY0MWUyMmVmIiwiaWF0IjoxNjYxNDM3NTQzLCJleHAiOjE2NjE0NDEyNDN9.T6PlvZxId2GJWnT5SyZgnkr0-pUgBp9_1l1dUKhxO54"
@@ -140,13 +136,16 @@
                     "401": {
                         "description": "Unauthorized - Invalid email or password"
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "500": {
                         "description": "Internal Server Error"
                     }
                 }
             }
         },
-        "/users/logout": {
+        "/api/users/logout": {
             "post": {
                 "tags": [
                     "User Management"
@@ -187,7 +186,7 @@
                 ]
             }
         },
-        "/users": {
+        "/api/users": {
             "get": {
                 "tags": [
                     "User Management"
@@ -299,7 +298,7 @@
                 ]
             }
         },
-        "/users/{user_id}": {
+        "/api/users/{user_id}": {
             "get": {
                 "tags": [
                     "User Management"
@@ -351,6 +350,9 @@
                     "404": {
                         "description": "Not Found - User not found"
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "500": {
                         "description": "Internal Server Error"
                     }
@@ -389,6 +391,9 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "404": {
                         "description": "Not Found - User not found"
                     },
@@ -406,7 +411,7 @@
                 ]
             }
         },
-        "/users/all": {
+        "/api/users/all": {
             "get": {
                 "tags": [
                     "User Management"
@@ -433,6 +438,33 @@
                         "required": false,
                         "description": "Number of items per page",
                         "default": 5
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "filter for the user status"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "filter for the user type"
+                    },
+                    {
+                        "in": "query",
+                        "name": "mission",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "[mission_id] users for mission to include in the list"
                     }
                 ],
                 "responses": {
@@ -450,6 +482,10 @@
                                     "username": {
                                         "type": "string",
                                         "example": "Layla"
+                                    },
+                                    "active_mission_count": {
+                                        "type": "int",
+                                        "example": 2
                                     }
                                 }
                             }
@@ -460,6 +496,9 @@
                     },
                     "401": {
                         "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
                     },
                     "404": {
                         "description": "User not found"
@@ -475,7 +514,7 @@
                 ]
             }
         },
-        "/users/cur_missions": {
+        "/api/users/cur_missions": {
             "get": {
                 "tags": [
                     "User Management"
@@ -522,7 +561,78 @@
                 ]
             }
         },
-        "/users/password": {
+        "/api/users/{user_id}/approval": {
+            "put": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User Account Approval [ADMIN]",
+                "description": "approve the user account and specify their type",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "ID of the user to delete",
+                        "required": true,
+                        "type": "string",
+                        "example": "6055a0ae80e90e08641e22ef"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Approval data",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "approved": {
+                                    "type": "boolean",
+                                    "example": true,
+                                    "required": true
+                                },
+                                "type": {
+                                    "type": "int",
+                                    "example": 1,
+                                    "required": false
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User account status updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "User account status is updated successfully."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found - User not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/password": {
             "put": {
                 "tags": [
                     "User Management"
@@ -585,7 +695,7 @@
                 ]
             }
         },
-        "/devices": {
+        "/api/devices": {
             "post": {
                 "tags": [
                     "Device Management"
@@ -656,7 +766,7 @@
                 ]
             }
         },
-        "/devices/{device_id}": {
+        "/api/devices/{device_id}": {
             "get": {
                 "tags": [
                     "Device Management"
@@ -788,6 +898,9 @@
                     "401": {
                         "description": "Unauthorized Error - Admin access is required"
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "404": {
                         "description": "Not Found - Device not found"
                     },
@@ -839,6 +952,9 @@
                     "401": {
                         "description": "Unauthorized Error - Admin access is required"
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "404": {
                         "description": "Not Found - Device not found"
                     },
@@ -856,7 +972,7 @@
                 ]
             }
         },
-        "/devices/all": {
+        "/api/devices/all": {
             "get": {
                 "tags": [
                     "Device Management"
@@ -883,6 +999,33 @@
                         "required": false,
                         "description": "Number of items per page",
                         "default": 5
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "filter for the device status"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "filter for the device type"
+                    },
+                    {
+                        "in": "query",
+                        "name": "mission",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "[mission_id] devices for mission to include in the list"
                     }
                 ],
                 "responses": {
@@ -897,7 +1040,7 @@
                                         "type": "string",
                                         "example": "6055a0ae80e90e08641e22ef"
                                     },
-                                    "username": {
+                                    "name": {
                                         "type": "string",
                                         "example": "Robot1"
                                     }
@@ -910,6 +1053,9 @@
                     },
                     "401": {
                         "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
                     },
                     "404": {
                         "description": "User not found"
@@ -925,7 +1071,7 @@
                 ]
             }
         },
-        "/missions": {
+        "/api/missions": {
             "post": {
                 "tags": [
                     "Mission Management"
@@ -987,6 +1133,9 @@
                     "401": {
                         "description": "Unauthorized Error - Admin access is required"
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "404": {
                         "description": "Not Found - Device/User not found"
                     },
@@ -1004,7 +1153,7 @@
                 ]
             }
         },
-        "/missions/{mission_id}": {
+        "/api/missions/{mission_id}": {
             "get": {
                 "tags": [
                     "Mission Management"
@@ -1177,6 +1326,9 @@
                         "401": {
                             "description": "Unauthorized Error - Admin access is required"
                         },
+                        "403": {
+                            "description": "Forbidden Error"
+                        },
                         "404": {
                             "description": "Not Found - Mission not found"
                         },
@@ -1195,7 +1347,7 @@
                 ]
             }
         },
-        "/missions/all": {
+        "/api/missions/all": {
             "get": {
                 "tags": [
                     "Mission Management"
@@ -1222,6 +1374,15 @@
                         "required": false,
                         "description": "Number of items per page",
                         "default": 5
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false,
+                        "description": "filter for the mission status"
                     }
                 ],
                 "responses": {
@@ -1250,6 +1411,9 @@
                     "401": {
                         "description": "Unauthorized"
                     },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
                     "404": {
                         "description": "User not found"
                     },
@@ -1264,7 +1428,7 @@
                 ]
             }
         },
-        "/missions/{mission_id}/{command}": {
+        "/api/missions/{mission_id}/{command}": {
             "put": {
                 "tags": [
                     "Mission Management"
@@ -1306,6 +1470,9 @@
                         },
                         "401": {
                             "description": "Unauthorized Error - Admin access is required"
+                        },
+                        "403": {
+                            "description": "Forbidden Error"
                         },
                         "404": {
                             "description": "Not Found - Mission not found"

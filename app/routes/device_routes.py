@@ -6,7 +6,7 @@ from app.controllers.device_controller import *
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
 
-device = Blueprint("device_routes", __name__, url_prefix="/devices")
+device = Blueprint("device_routes", __name__, url_prefix="/api/devices")
 
 #TO-DO: check brokers
 #TO-DO: authentication for device regestration
@@ -35,7 +35,10 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
-    return get_all(user_type, page_number, page_size)
+    status = int(request.args.get("status")) if request.args.get("status") is not None else None
+    type = int(request.args.get("type")) if request.args.get("type") is not None else None
+    mission_id = request.args.get("mission") if request.args.get("mission") is not None else None
+    return get_all(user_type, page_number, page_size, status, type, mission_id)
 
 
 @device.route("/<device_id>", methods=["PUT"])

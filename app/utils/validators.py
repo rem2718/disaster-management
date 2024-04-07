@@ -3,7 +3,7 @@ import re
 from mongoengine.errors import ValidationError, DoesNotExist
 from mongoengine.queryset.visitor import Q
 
-from app.utils.enums import Status, MissionStatus
+from app.utils.enums import Status
 from app.models.device_model import Device
 from app.models.user_model import User
 
@@ -52,7 +52,7 @@ def enum_validator(enum_name, value, enum):
 
 
 def device_validator(device_ids):
-    existing_devices = Device.objects(Q(id__in=device_ids) & Q(status=Status.ACTIVE))
+    existing_devices = Device.objects(Q(id__in=device_ids) & Q(status=Status.AVAILABLE))
     existing_set = set(str(device.id) for device in existing_devices)
     provided_set = set(device_ids)
     missing_devices = provided_set - existing_set
@@ -63,7 +63,7 @@ def device_validator(device_ids):
 
 
 def user_validator(user_ids):
-    existing_users = User.objects(Q(id__in=user_ids) & Q(status__ne=Status.INACTIVE))
+    existing_users = User.objects(Q(id__in=user_ids) & (Q(status=Status.AVAILABLE) | Q(status=Status.ASSIGNED)))
     missing_users = set(user_ids) - set(user.id for user in existing_users)
     existing_set = set(str(user.id) for user in existing_users)
     provided_set = set(user_ids)

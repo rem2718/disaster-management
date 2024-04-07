@@ -28,15 +28,10 @@ def signup(email, password, username):
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
     user = User(email=email, password=hashed_password, username=username)
     user.save()
-    # create mqtt creds for the user
-    token = user.generate_token()
     data = {
-        "message": "User created successfully. Use the same credentials to establish a connection with the Cloud MQTT broker.",
-        "user_id": str(user.id),
-        "type": user.type.value,
-        "token": token,
+        "message": "User created successfully. Once you receive approval from the admin, you can access your account and establish a connection with the Cloud MQTT broker using the same credentials.",
     }
-    return jsonify(data), 201
+    return jsonify(data), 202
 
 
 @handle_exceptions
@@ -45,17 +40,28 @@ def login(email_or_username, password):
     null_validator("Password", password)
 
     if User.is_email(email_or_username):
-        user = User.objects(email=email_or_username).first()
+        user = User.objects(
+            Q(email=email_or_username) & Q(status__ne=Status.INACTIVE)
+        ).first()
     else:
-        user = User.objects(username=email_or_username).first()
+        user = User.objects(
+            Q(username=email_or_username) & Q(status__ne=Status.INACTIVE)
+        ).first()
 
     if not user or not user.check_password(password):
         return err_res(401, "Invalid email or password.")
+    if user.status == Status.PENDING:
+        return err_res(
+            403, "Account is pending. Login not allowed until admin approval."
+        )
+    if user.status == Status.REJECTED:
+        return err_res(403, "Account is rejected. Please contact support.")
 
     token = user.generate_token()
     data = {
         "message": f"User {user.username} loggedin successfully.",
         "username": user.username,
+        "type": user.type.value,
         "token": token,
     }
     return jsonify(data), 200
@@ -101,10 +107,50 @@ def get_user_info(user_type, user_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size):
+def get_all(user_type, page_number, page_size, status, type, mission_id):
     offset = (page_number - 1) * page_size
-    users = User.objects.skip(offset).limit(page_size)
-    data = [{"id": str(user.id), "username": user.username} for user in users]
+    query, data = {}, []
+
+    if status is not None:
+        query["status"] = status
+    if type is not None:
+        query["type"] = type
+    users = User.objects(**query).skip(offset).limit(page_size)
+
+    if mission_id is not None:
+        mission_users = []
+        mission = Mission.objects.get(id=mission_id)
+        for usr in mission.user_ids:
+            mission_users.append(str(usr.id))
+            user = User.objects.get(id=str(usr.id))
+            data.append(
+                {
+                    "id": str(user.id),
+                    "username": user.username,
+                    "in_mission": True,
+                    "active_mission_count": len(user.cur_missions),
+                }
+            )
+        data += [
+            {
+                "id": str(user.id),
+                "username": user.username,
+                "in_mission": False,
+                "active_mission_count": len(user.cur_missions),
+            }
+            for user in users
+            if str(user.id) not in mission_users
+        ]
+    else:
+        data = [
+            {
+                "id": str(user.id),
+                "username": user.username,
+                "active_mission_count": len(user.cur_missions),
+            }
+            for user in users
+        ]
+
     return jsonify(data), 200
 
 
@@ -123,6 +169,28 @@ def get_cur_missions(user_id):
         for mission in user.cur_missions
     ]
     data = {"cur_missions": missions}
+    return jsonify(data), 200
+
+
+@authorize_admin
+@handle_exceptions
+def user_approval(user_type, user_id, approved, type):
+    null_validator("approved", approved)
+    user = User.objects.get(id=user_id)
+
+    if user.status != Status.PENDING:
+        return err_res(409, "User account is not pending.")
+
+    if approved:
+        enum_validator("UserType", type, UserType)
+        user.status = Status.AVAILABLE
+        user.type = type
+        # create mqtt creds for the user
+    else:
+        user.status = Status.REJECTED
+
+    user.save()
+    data = {"message": "User account status is updated successfully."}
     return jsonify(data), 200
 
 

@@ -15,9 +15,11 @@ class DeviceType(IntEnum):
 
 
 class Status(IntEnum):
-    ACTIVE = 1
-    ASSIGNED = 2
-    INACTIVE = 3
+    AVAILABLE = 1
+    PENDING = 2
+    ASSIGNED = 3
+    INACTIVE = 4
+    REJECTED = 5
 
 
 class MissionStatus(IntEnum):

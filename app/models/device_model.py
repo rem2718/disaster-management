@@ -6,7 +6,7 @@ class Device(db.Document):
     name = db.StringField(required=True)
     mac = db.StringField(required=True)
     type = db.EnumField(DeviceType, default=DeviceType.UGV)
-    status = db.EnumField(Status, default=Status.ACTIVE)
+    status = db.EnumField(Status, default=Status.AVAILABLE)
     meta = {"collection": "Devices"}
 
     def __repr__(self):

@@ -3,12 +3,11 @@ from flask import Blueprint, request
 
 from app.controllers.user_controller import *
 
-#TO-DO: admin give and approve users
 
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
 
-user = Blueprint("user_routes", __name__, url_prefix="/users")
+user = Blueprint("user_routes", __name__, url_prefix="/api/users")
 
 
 @user.route("/signup", methods=["POST"])
@@ -53,7 +52,18 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
-    return get_all(user_type, page_number, page_size)
+    status = (
+        int(request.args.get("status"))
+        if request.args.get("status") is not None
+        else None
+    )
+    type = (
+        int(request.args.get("type")) if request.args.get("type") is not None else None
+    )
+    mission_id = (
+        request.args.get("mission") if request.args.get("mission") is not None else None
+    )
+    return get_all(user_type, page_number, page_size, status, type, mission_id)
 
 
 @user.route("/cur_missions", methods=["GET"])
@@ -61,6 +71,15 @@ def get_all_route():
 def get_cur_missions_route():
     user_id = get_jwt_identity()["id"]
     return get_cur_missions(user_id)
+
+
+@user.route("/<user_id>/approval", methods=["PUT"])
+@jwt_required()
+def approval_route(user_id):
+    user_type = get_jwt_identity()["type"]
+    approved = request.json.get("approved", None)
+    type = request.json.get("type", UserType.REGULAR.value)
+    return user_approval(user_type, user_id, approved, type)
 
 
 @user.route("/", methods=["PUT"])
