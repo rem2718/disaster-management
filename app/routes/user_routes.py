@@ -52,18 +52,20 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
-    status = (
-        int(request.args.get("status"))
-        if request.args.get("status") is not None
-        else None
-    )
+    
+    status_param = request.args.get("status")
+    if status_param:
+        statuses = [int(status) for status in status_param.split("&")]
+    else:
+        statuses = None
+
     type = (
         int(request.args.get("type")) if request.args.get("type") is not None else None
     )
     mission_id = (
         request.args.get("mission") if request.args.get("mission") is not None else None
     )
-    return get_all(user_type, page_number, page_size, status, type, mission_id)
+    return get_all(user_type, page_number, page_size, statuses, type, mission_id)
 
 
 @user.route("/cur_missions", methods=["GET"])

@@ -10,6 +10,7 @@ from app.models.user_model import User
 
 def null_validator(field, value):
     if value == None:
+        print(f"here ")
         raise ValidationError(f"{field} is required")
 
 

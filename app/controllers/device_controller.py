@@ -16,6 +16,9 @@ MAX_LENGTH = 20
 @authorize_admin
 @handle_exceptions
 def register(user_type, name, mac, type):
+    null_validator("name", name)
+    null_validator("mac", mac)
+    null_validator("type", type)
     minlength_validator("Name", name, MIN_LENGTH)
     maxlength_validator("Name", name, MAX_LENGTH)
     mac_validator(mac)

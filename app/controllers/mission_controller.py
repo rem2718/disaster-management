@@ -62,6 +62,9 @@ def split_sets(existing_list, provided_list):
 @authorize_admin
 @handle_exceptions
 def create(user_type, name, device_ids, user_ids):
+    null_validator("name", name)
+    null_validator("device_ids", device_ids)
+    null_validator("user_ids", user_ids)
     existing_mission = Mission.objects(name=name).first()
     if existing_mission:
         return err_res(409, "Mission name is already taken.")

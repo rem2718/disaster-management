@@ -15,6 +15,9 @@ MAX_LENGTH = 20
 
 @handle_exceptions
 def signup(email, password, username):
+    null_validator("email", email)
+    null_validator("password", password)
+    null_validator("username", username)
     existing_user = User.objects(
         (Q(email=email) | Q(username=username)) & Q(status__ne=Status.INACTIVE)
     ).first()
@@ -107,12 +110,12 @@ def get_user_info(user_type, user_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, status, type, mission_id):
+def get_all(user_type, page_number, page_size, statuses, type, mission_id):
     offset = (page_number - 1) * page_size
     query, data = {}, []
 
-    if status is not None:
-        query["status"] = status
+    if statuses is not None:
+        query["status__in"] = statuses
     if type is not None:
         query["type"] = type
     users = User.objects(**query).skip(offset).limit(page_size)
@@ -127,6 +130,7 @@ def get_all(user_type, page_number, page_size, status, type, mission_id):
                 {
                     "id": str(user.id),
                     "username": user.username,
+                    "type": user.type,
                     "in_mission": True,
                     "active_mission_count": len(user.cur_missions),
                 }
@@ -135,6 +139,7 @@ def get_all(user_type, page_number, page_size, status, type, mission_id):
             {
                 "id": str(user.id),
                 "username": user.username,
+                "type": user.type,
                 "in_mission": False,
                 "active_mission_count": len(user.cur_missions),
             }
@@ -146,6 +151,7 @@ def get_all(user_type, page_number, page_size, status, type, mission_id):
             {
                 "id": str(user.id),
                 "username": user.username,
+                "type": user.type,
                 "active_mission_count": len(user.cur_missions),
             }
             for user in users

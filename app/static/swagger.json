@@ -443,10 +443,10 @@
                         "in": "query",
                         "name": "status",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "required": false,
-                        "description": "filter for the user status"
+                        "description": "filter for the user status, you can add more than one status by concatenate them with '&'"
                     },
                     {
                         "in": "query",
