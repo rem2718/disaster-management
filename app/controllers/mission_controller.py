@@ -3,7 +3,7 @@ from bson import ObjectId
 
 from flask import jsonify
 
-from app.utils.enums import MissionStatus, Status
+from app.utils.enums import MissionStatus, UserStatus, DeviceStatus
 from app.models.user_model import User, cur_mission
 from app.models.mission_model import Mission
 from app.models.device_model import Device
@@ -28,14 +28,14 @@ def update_lists(ids_list, case, mission=None):
                 _id=mission.id, name=mission.name, status=mission.status
             )
             User.objects(id__in=ids_list).update(
-                push__cur_missions=cur_m, set__status=Status.ASSIGNED
+                push__cur_missions=cur_m, set__status=UserStatus.ASSIGNED
             )
 
         case "delete_user":
             for _id in ids_list:
                 user = User.objects.get(id=_id)
                 if len(user.cur_missions) == 1:
-                    user.update(set__cur_missions=[], status=Status.AVAILABLE)
+                    user.update(set__cur_missions=[], status=UserStatus.AVAILABLE)
                 else:
                     user.cur_missions = [
                         cur_m
@@ -45,10 +45,10 @@ def update_lists(ids_list, case, mission=None):
                     user.save()
 
         case "add_device":
-            Device.objects(id__in=ids_list).update(set__status=Status.ASSIGNED)
+            Device.objects(id__in=ids_list).update(set__status=DeviceStatus.ASSIGNED)
 
         case "delete_device":
-            Device.objects(id__in=ids_list).update(set__status=Status.AVAILABLE)
+            Device.objects(id__in=ids_list).update(set__status=DeviceStatus.AVAILABLE)
 
 
 def split_sets(existing_list, provided_list):
@@ -115,12 +115,12 @@ def get_info(user_type, mission_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, status):
+def get_all(user_type, page_number, page_size, statuses):
     offset = (page_number - 1) * page_size
 
     query = {}
-    if status is not None:
-        query["status"] = status
+    if statuses:
+        query["status__in"] = statuses
 
     missions = Mission.objects(**query).skip(offset).limit(page_size)
     data = [

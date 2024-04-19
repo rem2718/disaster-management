@@ -4,7 +4,7 @@ import re
 from flask_jwt_extended import create_access_token
 from mongoengine import EmbeddedDocumentField
 
-from app.utils.enums import UserType, Status, MissionStatus
+from app.utils.enums import UserType, UserStatus, MissionStatus
 from app.utils.extensions import db, bcrypt
 
 
@@ -20,7 +20,7 @@ class User(db.Document):
     password = db.StringField(required=True)
     username = db.StringField(required=True)
     type = db.EnumField(UserType, default=UserType.REGULAR)
-    status = db.EnumField(Status, default=Status.PENDING)
+    status = db.EnumField(UserStatus, default=UserStatus.PENDING)
     cur_missions = db.ListField(
         EmbeddedDocumentField(cur_mission), required=False, default=[]
     )
@@ -34,7 +34,7 @@ class User(db.Document):
             f"username: {self.username}\n"
             f"email: {self.email}\n"
             f"password: {self.password}\n"
-            f"status: {Status(self.status).name}\n"
+            f"status: {UserStatus(self.status).name}\n"
             f"type: {UserType(self.type).name}\n"
             f"cur_missions: {[f'id: {str(mission._id)}, name: {mission.name}, status: {MissionStatus(mission.status).name}' for mission in self.cur_missions]}>"
         )

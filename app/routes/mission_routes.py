@@ -8,7 +8,8 @@ mission = Blueprint("mission_routes", __name__, url_prefix="/api/missions")
 DEF_PAGE_NUM = 1
 DEF_PAGE_SIZE = 5
 
-#TO-DO: notify brokers/ robots when mission start or end
+# TO-DO: notify brokers/ robots when mission start or end
+
 
 @mission.route("/", methods=["POST"])
 @jwt_required()
@@ -33,8 +34,11 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
-    status = int(request.args.get("status")) if request.args.get("status") is not None else None
-    return get_all(user_type, page_number, page_size, status)
+
+    status_list = request.args.getlist("status")
+    statuses = map(int, status_list) if status_list else None
+
+    return get_all(user_type, page_number, page_size, statuses)
 
 
 @mission.route("/<mission_id>", methods=["PUT"])

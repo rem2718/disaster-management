@@ -3,7 +3,7 @@ from bson import ObjectId
 from mongoengine.queryset.visitor import Q
 from flask import jsonify
 
-from app.utils.enums import Status, DeviceType, MissionStatus
+from app.utils.enums import DeviceStatus, DeviceType, MissionStatus
 from app.models.mission_model import Mission
 from app.models.device_model import Device
 from app.utils.validators import *
@@ -24,7 +24,7 @@ def register(user_type, name, mac, type):
     mac_validator(mac)
     enum_validator("device", type, DeviceType)
     existing_device = Device.objects(
-        (Q(mac=mac) | Q(name=name)) & (Q(status__ne=Status.INACTIVE))
+        (Q(mac=mac) | Q(name=name)) & (Q(status__ne=DeviceStatus.INACTIVE))
     ).first()
     if existing_device:
         return err_res(409, "A device with the same MAC address is already registered.")
@@ -55,17 +55,17 @@ def get_info(user_type, device_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, status, type, mission_id):
+def get_all(user_type, page_number, page_size, statuses, types, mission_id):
     offset = (page_number - 1) * page_size
     query, data = {}, []
 
-    if status is not None:
-        query["status"] = status
-    if type is not None:
-        query["type"] = type
+    if statuses:
+        query["status__in"] = statuses
+    if types:
+        query["type__in"] = types
     devices = Device.objects(**query).skip(offset).limit(page_size)
 
-    if mission_id is not None:
+    if mission_id:
         mission_devs = []
         mission = Mission.objects.get(id=mission_id)
         for dev in mission.device_ids:
@@ -130,7 +130,7 @@ def update(user_type, device_id, name, mac, type):
 def deactivate(user_type, device_id):
     null_validator("Device ID", device_id)
     device = Device.objects.get(id=device_id)
-    if device.status == Status.INACTIVE:
+    if device.status == DeviceStatus.INACTIVE:
         return err_res(409, "Device is already Inactive.")
 
     missions = Mission.objects(
@@ -140,5 +140,5 @@ def deactivate(user_type, device_id):
     for mission in missions:
         mission.update(pull__device_ids=ObjectId(device_id))
 
-    Device.objects(id=device_id).update(set__status=Status.INACTIVE)
+    Device.objects(id=device_id).update(set__status=DeviceStatus.INACTIVE)
     return jsonify({"message": "Device is deactivated successfully."}), 200

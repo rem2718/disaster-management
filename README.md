@@ -25,5 +25,8 @@
         flask run
     ```
 
-## Swagger
+## Note:
+Each time you want to run the server, make sure to refresh the project folder (if your folder is already cloned) + Don't forget to install the requirements. 
+
+## Swagger:
 To access the Swagger documentation for this server, simply visit the "/swagger" endpoint (127.0.0.1:5000/swagger) in your browser. Here, you'll find all the information about the APIs, and you can even test them directly within the Swagger interface.

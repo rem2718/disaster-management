@@ -5,12 +5,14 @@ from flask import jsonify
 
 from app.models.mission_model import Mission
 from app.models.user_model import User
-from app.utils.enums import Status
+from app.utils.enums import UserStatus
 from app.utils.extensions import *
 from app.utils.validators import *
 
 MIN_LENGTH = 3
 MAX_LENGTH = 20
+
+# TO-DO: stats with filters
 
 
 @handle_exceptions
@@ -19,7 +21,7 @@ def signup(email, password, username):
     null_validator("password", password)
     null_validator("username", username)
     existing_user = User.objects(
-        (Q(email=email) | Q(username=username)) & Q(status__ne=Status.INACTIVE)
+        (Q(email=email) | Q(username=username)) & Q(status__ne=UserStatus.INACTIVE)
     ).first()
     if existing_user:
         return err_res(409, "Email or Username is already taken.")
@@ -44,20 +46,20 @@ def login(email_or_username, password):
 
     if User.is_email(email_or_username):
         user = User.objects(
-            Q(email=email_or_username) & Q(status__ne=Status.INACTIVE)
+            Q(email=email_or_username) & Q(status__ne=UserStatus.INACTIVE)
         ).first()
     else:
         user = User.objects(
-            Q(username=email_or_username) & Q(status__ne=Status.INACTIVE)
+            Q(username=email_or_username) & Q(status__ne=UserStatus.INACTIVE)
         ).first()
 
     if not user or not user.check_password(password):
         return err_res(401, "Invalid email or password.")
-    if user.status == Status.PENDING:
+    if user.status == UserStatus.PENDING:
         return err_res(
             403, "Account is pending. Login not allowed until admin approval."
         )
-    if user.status == Status.REJECTED:
+    if user.status == UserStatus.REJECTED:
         return err_res(403, "Account is rejected. Please contact support.")
 
     token = user.generate_token()
@@ -110,17 +112,17 @@ def get_user_info(user_type, user_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, statuses, type, mission_id):
+def get_all(user_type, page_number, page_size, statuses, types, mission_id):
     offset = (page_number - 1) * page_size
     query, data = {}, []
 
-    if statuses is not None:
+    if statuses:
         query["status__in"] = statuses
-    if type is not None:
-        query["type"] = type
+    if types:
+        query["type__in"] = types
     users = User.objects(**query).skip(offset).limit(page_size)
 
-    if mission_id is not None:
+    if mission_id:
         mission_users = []
         mission = Mission.objects.get(id=mission_id)
         for usr in mission.user_ids:
@@ -184,16 +186,16 @@ def user_approval(user_type, user_id, approved, type):
     null_validator("approved", approved)
     user = User.objects.get(id=user_id)
 
-    if user.status != Status.PENDING:
+    if user.status not in [UserStatus.PENDING, UserStatus.REJECTED]:
         return err_res(409, "User account is not pending.")
 
     if approved:
         enum_validator("UserType", type, UserType)
-        user.status = Status.AVAILABLE
+        user.status = UserStatus.AVAILABLE
         user.type = type
         # create mqtt creds for the user
     else:
-        user.status = Status.REJECTED
+        user.status = UserStatus.REJECTED
 
     user.save()
     data = {"message": "User account status is updated successfully."}
@@ -266,12 +268,14 @@ def update_password(user_id, old_password, new_password):
 @handle_exceptions
 def delete_user(user_type, user_id):
     user = User.objects.get(id=user_id)
-    if user.status == Status.INACTIVE:
+    if user.status == UserStatus.INACTIVE:
         return err_res(409, "User is already Inactive.")
 
     for mission in user.cur_missions:
         Mission.objects(id=mission._id).update_one(pull__user_ids=ObjectId(user_id))
 
-    User.objects(id=user_id).update(set__cur_missions=[], set__status=Status.INACTIVE)
+    User.objects(id=user_id).update(
+        set__cur_missions=[], set__status=UserStatus.INACTIVE
+    )
     # delete mqtt creds for that user
     return jsonify({"message": "User is deleted successfully."}), 200

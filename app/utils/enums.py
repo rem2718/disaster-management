@@ -14,12 +14,18 @@ class DeviceType(IntEnum):
     BROKER = 5
 
 
-class Status(IntEnum):
+class UserStatus(IntEnum):
     AVAILABLE = 1
     PENDING = 2
     ASSIGNED = 3
     INACTIVE = 4
     REJECTED = 5
+
+
+class DeviceStatus(IntEnum):
+    AVAILABLE = 1
+    ASSIGNED = 3
+    INACTIVE = 4
 
 
 class MissionStatus(IntEnum):

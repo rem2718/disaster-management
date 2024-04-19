@@ -422,9 +422,7 @@
                     {
                         "in": "query",
                         "name": "page-number",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "Page number",
                         "default": 1
@@ -432,9 +430,7 @@
                     {
                         "in": "query",
                         "name": "page-size",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "Number of items per page",
                         "default": 5
@@ -442,27 +438,29 @@
                     {
                         "in": "query",
                         "name": "status",
-                        "schema": {
-                            "type": "string"
-                        },
                         "required": false,
-                        "description": "filter for the user status, you can add more than one status by concatenate them with '&'"
+                        "description": "filter for the user status",
+                        "type": "array",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     {
                         "in": "query",
                         "name": "type",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "array",
                         "required": false,
-                        "description": "filter for the user type"
+                        "description": "filter for the user type",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     {
                         "in": "query",
                         "name": "mission",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "[mission_id] users for mission to include in the list"
                     }
@@ -520,7 +518,7 @@
                     "User Management"
                 ],
                 "summary": "User Current Missions Retrievement",
-                "description": "Retrieve all missions in which the user is currently participating actively\n\nMission Statuses`(enum)`:\n1: CREATED\n2: ONGOING\n3: PAUSED",
+                "description": "Retrieve all missions in which the user is currently participating actively\n\nMission Statuses(enum):\n1: CREATED\n2: ONGOING\n3: PAUSED",
                 "responses": {
                     "200": {
                         "description": "List of all the current missions",
@@ -700,8 +698,8 @@
                 "tags": [
                     "Device Management"
                 ],
-                "summary": "Device Registration",
-                "description": "Register a new device\nName and MAC Address must be unique",
+                "summary": "Device Registration [ADMIN]",
+                "description": "Register a new device\nName and MAC Address must be unique.\nThis endpoint is called from the device itself, not the mobile app.",
                 "parameters": [
                     {
                         "name": "body",
@@ -983,9 +981,7 @@
                     {
                         "in": "query",
                         "name": "page-number",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "Page number",
                         "default": 1
@@ -993,9 +989,7 @@
                     {
                         "in": "query",
                         "name": "page-size",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "Number of items per page",
                         "default": 5
@@ -1003,27 +997,29 @@
                     {
                         "in": "query",
                         "name": "status",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "array",
                         "required": false,
-                        "description": "filter for the device status"
+                        "description": "filter for the device status",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     {
                         "in": "query",
                         "name": "type",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "array",
                         "required": false,
-                        "description": "filter for the device type"
+                        "description": "filter for the device type",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     {
                         "in": "query",
                         "name": "mission",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "[mission_id] devices for mission to include in the list"
                     }
@@ -1358,9 +1354,7 @@
                     {
                         "in": "query",
                         "name": "page-number",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "Page number",
                         "default": 1
@@ -1368,9 +1362,7 @@
                     {
                         "in": "query",
                         "name": "page-size",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
                         "description": "Number of items per page",
                         "default": 5
@@ -1378,11 +1370,13 @@
                     {
                         "in": "query",
                         "name": "status",
-                        "schema": {
-                            "type": "integer"
-                        },
+                        "type": "integer",
                         "required": false,
-                        "description": "filter for the mission status"
+                        "description": "filter for the mission status",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
