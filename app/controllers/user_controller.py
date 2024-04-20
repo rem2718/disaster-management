@@ -128,20 +128,23 @@ def get_all(user_type, page_number, page_size, statuses, types, mission_id):
         for usr in mission.user_ids:
             mission_users.append(str(usr.id))
             user = User.objects.get(id=str(usr.id))
-            data.append(
+            data.qappend(
                 {
                     "id": str(user.id),
                     "username": user.username,
                     "type": user.type,
+                    "status": user.status,
                     "in_mission": True,
                     "active_mission_count": len(user.cur_missions),
                 }
             )
+
         data += [
             {
                 "id": str(user.id),
                 "username": user.username,
                 "type": user.type,
+                "status": user.status,
                 "in_mission": False,
                 "active_mission_count": len(user.cur_missions),
             }
@@ -154,10 +157,28 @@ def get_all(user_type, page_number, page_size, statuses, types, mission_id):
                 "id": str(user.id),
                 "username": user.username,
                 "type": user.type,
+                "status": user.status,
                 "active_mission_count": len(user.cur_missions),
             }
             for user in users
         ]
+
+    return jsonify(data), 200
+
+
+@authorize_admin
+@handle_exceptions
+def get_count(user_type, statuses, types):
+    query = {}
+
+    if statuses:
+        query["status__in"] = statuses
+    if types:
+        query["type__in"] = types
+
+    user_count = User.objects(**query).count()
+
+    data = {"status": statuses, "type": types, "count": user_count}
 
     return jsonify(data), 200
 

@@ -1,0 +1,1 @@
+b'{"statusCode":403,"description":"Invalid state","name":"AnomalyDetected","code":"access_denied"}'

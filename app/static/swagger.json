@@ -512,6 +512,81 @@
                 ]
             }
         },
+        "/api/users/count": {
+            "get": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "User Count [ADMIN]",
+                "description": "Get the count of users with filters for Admin interface",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "required": false,
+                        "description": "filter for the user status",
+                        "type": "array",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "type": "array",
+                        "required": false,
+                        "description": "filter for the user type",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "array",
+                                    "example": []
+                                },
+                                "type": {
+                                    "type": "array",
+                                    "example": [
+                                        1,
+                                        2
+                                    ]
+                                },
+                                "count": {
+                                    "type": "int",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/users/cur_missions": {
             "get": {
                 "tags": [
@@ -1067,6 +1142,81 @@
                 ]
             }
         },
+        "/api/devices/count": {
+            "get": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Device Count [ADMIN]",
+                "description": "Get the count of devices with filters for Admin interface",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "required": false,
+                        "description": "filter for the user status",
+                        "type": "array",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "type": "array",
+                        "required": false,
+                        "description": "filter for the user type",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "array",
+                                    "example": []
+                                },
+                                "type": {
+                                    "type": "array",
+                                    "example": [
+                                        1,
+                                        2
+                                    ]
+                                },
+                                "count": {
+                                    "type": "int",
+                                    "example": 10
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/missions": {
             "post": {
                 "tags": [
@@ -1410,6 +1560,66 @@
                     },
                     "404": {
                         "description": "User not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/missions/count": {
+            "get": {
+                "tags": [
+                    "Mission Management"
+                ],
+                "summary": "Mission Count [ADMIN]",
+                "description": "Get the count of mission with filters for Admin interface",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "required": false,
+                        "description": "filter for the user status",
+                        "type": "array",
+                        "collectionFormat": "multi",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "array",
+                                    "example": [
+                                        1,
+                                        3
+                                    ]
+                                },
+                                "count": {
+                                    "type": "int",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
                     },
                     "500": {
                         "description": "Internal server error"

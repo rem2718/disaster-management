@@ -85,6 +85,23 @@ def get_all(user_type, page_number, page_size, statuses, types, mission_id):
 
 @authorize_admin
 @handle_exceptions
+def get_count(user_type, statuses, types):
+    query = {}
+
+    if statuses:
+        query["status__in"] = statuses
+    if types:
+        query["type__in"] = types
+
+    device_count = Device.objects(**query).count()
+
+    data = {"status": statuses, "type": types, "count": device_count}
+
+    return jsonify(data), 200
+
+
+@authorize_admin
+@handle_exceptions
 def update(user_type, device_id, name, mac, type):
     device = Device.objects.get(id=device_id)
 

@@ -36,9 +36,20 @@ def get_all_route():
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
 
     status_list = request.args.getlist("status")
-    statuses = map(int, status_list) if status_list else None
+    statuses = list(map(int, status_list)) if status_list else None
 
     return get_all(user_type, page_number, page_size, statuses)
+
+
+@mission.route("/count", methods=["GET"])
+@jwt_required()
+def get_count_route():
+    user_type = get_jwt_identity()["type"]
+
+    status_list = request.args.getlist("status")
+    statuses = list(map(int, status_list)) if status_list else None
+
+    return get_count(user_type, statuses)
 
 
 @mission.route("/<mission_id>", methods=["PUT"])

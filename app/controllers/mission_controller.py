@@ -132,6 +132,21 @@ def get_all(user_type, page_number, page_size, statuses):
 
 @authorize_admin
 @handle_exceptions
+def get_count(user_type, statuses):
+    query = {}
+
+    if statuses:
+        query["status__in"] = statuses
+
+    mission_count = Mission.objects(**query).count()
+
+    data = {"status": statuses, "count": mission_count}
+
+    return jsonify(data), 200
+
+
+@authorize_admin
+@handle_exceptions
 def update(user_type, mission_id, name, device_ids, user_ids):
     mission = Mission.objects.get(id=mission_id)
     if mission.status in [MissionStatus.CANCELED, MissionStatus.FINISHED]:
