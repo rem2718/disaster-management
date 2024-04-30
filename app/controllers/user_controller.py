@@ -8,11 +8,12 @@ from app.models.user_model import User
 from app.utils.enums import UserStatus
 from app.utils.extensions import *
 from app.utils.validators import *
+from app.utils.mqtt_interface import *
 
 MIN_LENGTH = 3
 MAX_LENGTH = 20
 
-# TO-DO: stats with filters
+# TO-DO: search for users, devices, missions
 
 
 @handle_exceptions
@@ -55,12 +56,19 @@ def login(email_or_username, password):
 
     if not user or not user.check_password(password):
         return err_res(401, "Invalid email or password.")
+
     if user.status == UserStatus.PENDING:
         return err_res(
             403, "Account is pending. Login not allowed until admin approval."
         )
     if user.status == UserStatus.REJECTED:
         return err_res(403, "Account is rejected. Please contact support.")
+
+    if user.status == UserStatus.ACCEPTED:
+        # TO-DO: create mqtt creds for the user
+        # create_mqtt_user(user.username, password)
+        user.status = UserStatus.AVAILABLE
+        user.save()
 
     token = user.generate_token()
     data = {
@@ -128,7 +136,7 @@ def get_all(user_type, page_number, page_size, statuses, types, mission_id):
         for usr in mission.user_ids:
             mission_users.append(str(usr.id))
             user = User.objects.get(id=str(usr.id))
-            data.qappend(
+            data.append(
                 {
                     "id": str(user.id),
                     "username": user.username,
@@ -212,9 +220,8 @@ def user_approval(user_type, user_id, approved, type):
 
     if approved:
         enum_validator("UserType", type, UserType)
-        user.status = UserStatus.AVAILABLE
+        user.status = UserStatus.ACCEPTED
         user.type = type
-        # create mqtt creds for the user
     else:
         user.status = UserStatus.REJECTED
 
@@ -298,5 +305,6 @@ def delete_user(user_type, user_id):
     User.objects(id=user_id).update(
         set__cur_missions=[], set__status=UserStatus.INACTIVE
     )
-    # delete mqtt creds for that user
+    # TO-DO: delete mqtt creds for that user
+    # delete_mqtt_user(user.username)
     return jsonify({"message": "User is deleted successfully."}), 200

@@ -71,14 +71,36 @@ def get_all(user_type, page_number, page_size, statuses, types, mission_id):
         for dev in mission.device_ids:
             mission_devs.append(str(dev.id))
             device = Device.objects.get(id=str(dev.id))
-            data.append({"id": str(device.id), "name": device.name, "in_mission": True})
+            data.append(
+                {
+                    "id": str(device.id),
+                    "name": device.name,
+                    "type": device.type,
+                    "status": device.status,
+                    "in_mission": True,
+                }
+            )
         data += [
-            {"id": str(device.id), "name": device.name, "in_mission": False}
+            {
+                "id": str(device.id),
+                "name": device.name,
+                "type": device.type,
+                "status": device.status,
+                "in_mission": False,
+            }
             for device in devices
             if str(device.id) not in mission_devs
         ]
     else:
-        data = [{"id": str(device.id), "name": device.name} for device in devices]
+        data = [
+            {
+                "id": str(device.id),
+                "name": device.name,
+                "type": device.type,
+                "status": device.status,
+            }
+            for device in devices
+        ]
 
     return jsonify(data), 200
 

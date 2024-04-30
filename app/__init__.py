@@ -16,8 +16,8 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
-bcrypt.init_app(app)
 jwt.init_app(app)
+bcrypt.init_app(app)
 
 app.register_blueprint(swagger_ui_blueprint, url_prefix="/swagger")
 app.register_blueprint(user_routes)

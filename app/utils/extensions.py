@@ -12,7 +12,6 @@ db = MongoEngine()
 bcrypt = Bcrypt()
 jwt = JWTManager()
 
-
 def err_res(code, data):
     match code:
         case 400:
