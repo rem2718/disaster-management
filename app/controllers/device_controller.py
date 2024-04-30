@@ -55,10 +55,13 @@ def get_info(user_type, device_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, statuses, types, mission_id):
+def get_all(user_type, page_number, page_size, name, statuses, types, mission_id):
     offset = (page_number - 1) * page_size
     query, data = {}, []
 
+    if name:
+        query["name__icontains"] = name
+        
     if statuses:
         query["status__in"] = statuses
     if types:

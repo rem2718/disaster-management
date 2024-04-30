@@ -25,6 +25,13 @@ def login_route():
     return login(email_or_username, password)
 
 
+@user.route("/rtmp_auth", methods=["GET"])
+def rtmp_auth_route():
+    username = request.args.get("username", None)
+    password = request.args.get("password", None)
+    return rtmp_auth(username, password)
+
+
 @user.route("/logout", methods=["POST"])
 @jwt_required()
 def logout_route():
@@ -52,6 +59,7 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
+    username = request.args.get("username", None)
 
     status_list = request.args.getlist("status")
     statuses = list(map(int, status_list)) if status_list else None
@@ -62,7 +70,9 @@ def get_all_route():
     mission = request.args.get("mission")
     mission_id = request.args.get("mission") if mission else None
 
-    return get_all(user_type, page_number, page_size, statuses, types, mission_id)
+    return get_all(
+        user_type, page_number, page_size, username, statuses, types, mission_id
+    )
 
 
 @user.route("/count", methods=["GET"])

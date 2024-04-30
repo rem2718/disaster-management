@@ -81,6 +81,27 @@ def login(email_or_username, password):
 
 
 @handle_exceptions
+def rtmp_auth(username, password):
+    null_validator("Username", username)
+    null_validator("Password", password)
+
+    user = User.objects(
+        Q(username=username) & Q(status__ne=UserStatus.INACTIVE)
+    ).first()
+
+    if not user or not user.check_password(password):
+        return err_res(401, "Invalid email or password.")
+
+    if user.status not in [UserStatus.AVAILABLE, UserStatus.ASSIGNED]:
+        return err_res(403, "Account is unavailable. Please contact support.")
+
+    data = {
+        "message": f"User {user.username} loggedin successfully.",
+    }
+    return jsonify(data), 200
+
+
+@handle_exceptions
 def logout(user_id):
     if not user_id:
         return err_res(400, "Invalid token")
@@ -120,9 +141,12 @@ def get_user_info(user_type, user_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, statuses, types, mission_id):
+def get_all(user_type, page_number, page_size, username, statuses, types, mission_id):
     offset = (page_number - 1) * page_size
     query, data = {}, []
+
+    if username:
+        query["username__icontains"] = username
 
     if statuses:
         query["status__in"] = statuses

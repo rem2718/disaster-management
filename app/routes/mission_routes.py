@@ -34,11 +34,12 @@ def get_all_route():
     user_type = get_jwt_identity()["type"]
     page_number = int(request.args.get("page-number", DEF_PAGE_NUM))
     page_size = int(request.args.get("page-size", DEF_PAGE_SIZE))
+    name = request.args.get("name", None)
 
     status_list = request.args.getlist("status")
     statuses = list(map(int, status_list)) if status_list else None
 
-    return get_all(user_type, page_number, page_size, statuses)
+    return get_all(user_type, page_number, page_size, name, statuses)
 
 
 @mission.route("/count", methods=["GET"])

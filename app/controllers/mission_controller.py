@@ -115,10 +115,12 @@ def get_info(user_type, mission_id):
 
 @authorize_admin
 @handle_exceptions
-def get_all(user_type, page_number, page_size, statuses):
+def get_all(user_type, page_number, page_size, name, statuses):
     offset = (page_number - 1) * page_size
-
     query = {}
+
+    if name:
+        query["name__icontains"] = name
     if statuses:
         query["status__in"] = statuses
 

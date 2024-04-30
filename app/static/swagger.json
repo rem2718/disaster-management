@@ -145,6 +145,48 @@
                 }
             }
         },
+        "/api/users/rtmp_auth": {
+            "get": {
+                "tags": [
+                    "User Management"
+                ],
+                "summary": "Authentication Proxy for RTMP Server",
+                "description": "Login with username and password for RTMP Server",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "username",
+                        "type": "string",
+                        "required": true,
+                        "default": "user123"
+                    },
+                    {
+                        "in": "query",
+                        "name": "password",
+                        "type": "string",
+                        "required": true,
+                        "default": "New_password123"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User logged in successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid email or password"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/users/logout": {
             "post": {
                 "tags": [
@@ -437,9 +479,17 @@
                     },
                     {
                         "in": "query",
+                        "name": "username",
+                        "type": "string",
+                        "required": false,
+                        "description": "filter for username",
+                        "default": "user"
+                    },
+                    {
+                        "in": "query",
                         "name": "status",
                         "required": false,
-                        "description": "filter for the user status",
+                        "description": "filter for user status",
                         "type": "array",
                         "collectionFormat": "multi",
                         "items": {
@@ -451,7 +501,7 @@
                         "name": "type",
                         "type": "array",
                         "required": false,
-                        "description": "filter for the user type",
+                        "description": "filter for user type",
                         "collectionFormat": "multi",
                         "items": {
                             "type": "integer"
@@ -1071,10 +1121,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "name",
+                        "type": "string",
+                        "required": false,
+                        "description": "filter for device name",
+                        "default": "device"
+                    },
+                    {
+                        "in": "query",
                         "name": "status",
                         "type": "array",
                         "required": false,
-                        "description": "filter for the device status",
+                        "description": "filter for device status",
                         "collectionFormat": "multi",
                         "items": {
                             "type": "integer"
@@ -1085,7 +1143,7 @@
                         "name": "type",
                         "type": "array",
                         "required": false,
-                        "description": "filter for the device type",
+                        "description": "filter for device type",
                         "collectionFormat": "multi",
                         "items": {
                             "type": "integer"
@@ -1519,10 +1577,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "name",
+                        "type": "string",
+                        "required": false,
+                        "description": "filter for mission name",
+                        "default": "mission"
+                    },
+                    {
+                        "in": "query",
                         "name": "status",
                         "type": "integer",
                         "required": false,
-                        "description": "filter for the mission status",
+                        "description": "filter for mission status",
                         "collectionFormat": "multi",
                         "items": {
                             "type": "integer"
