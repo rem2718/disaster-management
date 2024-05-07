@@ -15,22 +15,39 @@ MAX_LENGTH = 20
 
 @authorize_admin
 @handle_exceptions
-def register(user_type, name, mac, type):
-    null_validator("name", name)
-    null_validator("mac", mac)
-    null_validator("type", type)
+def register(user_type, name, password, mac, type, broker_id):
+    null_validator(["Name", "Password", "Mac", "Type"], [name, password, mac, type])
     minlength_validator("Name", name, MIN_LENGTH)
     maxlength_validator("Name", name, MAX_LENGTH)
     mac_validator(mac)
     enum_validator("device", type, DeviceType)
+    password_validator(password)
+
     existing_device = Device.objects(
         (Q(mac=mac) | Q(name=name)) & (Q(status__ne=DeviceStatus.INACTIVE))
     ).first()
     if existing_device:
         return err_res(409, "A device with the same MAC address is already registered.")
 
-    device = Device(name=name, mac=mac, type=type)
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    if broker_id:
+        broker_validator(broker_id)
+        device = Device(
+            name=name,
+            password=hashed_password,
+            mac=mac,
+            type=type,
+            broker_id=ObjectId(broker_id),
+        )
+    else:
+        device = Device(name=name, password=hashed_password, mac=mac, type=type)
+
     device.save()
+    if type == DeviceType.BROKER:
+        # TO-DO: create mqtt creds for the device
+        # create_mqtt_user(device.name, password)
+        pass
+
     data = {
         "message": "Device is registered successfully.",
         "device_id": str(device.id),
@@ -38,10 +55,25 @@ def register(user_type, name, mac, type):
     return jsonify(data), 201
 
 
+@handle_exceptions
+def rtmp_auth(name, password):
+    null_validator(["Name", "Password"], [name, password])
+
+    device = Device.objects(Q(name=name) & Q(status__ne=DeviceStatus.INACTIVE)).first()
+
+    if not device or not device.check_password(password):
+        return err_res(401, "Invalid device name or password.")
+
+    data = {
+        "message": f"Device {device.name} loggedin successfully.",
+    }
+    return jsonify(data), 200
+
+
 @authorize_admin
 @handle_exceptions
 def get_info(user_type, device_id):
-    null_validator("Device ID", device_id)
+    null_validator(["Device ID"], [device_id])
     device = Device.objects.get(id=device_id)
     data = {
         "device_id": str(device.id),
@@ -61,7 +93,7 @@ def get_all(user_type, page_number, page_size, name, statuses, types, mission_id
 
     if name:
         query["name__icontains"] = name
-        
+
     if statuses:
         query["status__in"] = statuses
     if types:
@@ -127,7 +159,7 @@ def get_count(user_type, statuses, types):
 
 @authorize_admin
 @handle_exceptions
-def update(user_type, device_id, name, mac, type):
+def update(user_type, device_id, name, old_password, new_password):
     device = Device.objects.get(id=device_id)
 
     if name:
@@ -141,28 +173,29 @@ def update(user_type, device_id, name, mac, type):
         maxlength_validator("Name", name, MAX_LENGTH)
         device.name = name
 
-    if mac:
-        if device.mac != mac:
-            existing_device = Device.objects(mac=mac).first()
-            if existing_device:
-                return err_res(409, "MAC Address is already taken.")
+    if new_password:
+        if old_password:
+            if old_password == new_password:
+                return err_res(409, "The new password is identical to the current one.")
+            if not device.check_password(old_password):
+                return err_res(401, "Incorrect old password try again.")
+
+            password_validator(new_password)
+            device.password = bcrypt.generate_password_hash(new_password).decode(
+                "utf-8"
+            )
         else:
             return err_res(
-                409, "The MAC Address provided is identical to the current one."
+                401, "You need to provide the old password in order to change it."
             )
-        mac_validator(mac)
-        device.mac = mac
-
-    if type:
-        enum_validator("Device Type", type, DeviceType)
-        device.type = type
 
     device.save()
+    if device.type == DeviceType.BROKER:
+        # TO-DO: update mqtt creds for the device (new_password)
+        pass
     data = {
         "message": "Device information is updated successfully.",
         "name": device.name,
-        "mac": device.mac,
-        "type": device.type,
     }
     return jsonify(data), 200
 
@@ -170,7 +203,7 @@ def update(user_type, device_id, name, mac, type):
 @authorize_admin
 @handle_exceptions
 def deactivate(user_type, device_id):
-    null_validator("Device ID", device_id)
+    null_validator(["Device ID"], [device_id])
     device = Device.objects.get(id=device_id)
     if device.status == DeviceStatus.INACTIVE:
         return err_res(409, "Device is already Inactive.")
@@ -183,4 +216,5 @@ def deactivate(user_type, device_id):
         mission.update(pull__device_ids=ObjectId(device_id))
 
     Device.objects(id=device_id).update(set__status=DeviceStatus.INACTIVE)
+    # TO-DO: delete mqtt creds for that device
     return jsonify({"message": "Device is deactivated successfully."}), 200

@@ -18,9 +18,7 @@ MAX_LENGTH = 20
 
 @handle_exceptions
 def signup(email, password, username):
-    null_validator("email", email)
-    null_validator("password", password)
-    null_validator("username", username)
+    null_validator(["Email", "Password", "Username"], [email, password, username])
     existing_user = User.objects(
         (Q(email=email) | Q(username=username)) & Q(status__ne=UserStatus.INACTIVE)
     ).first()
@@ -42,8 +40,7 @@ def signup(email, password, username):
 
 @handle_exceptions
 def login(email_or_username, password):
-    null_validator("Email or Username", email_or_username)
-    null_validator("Password", password)
+    null_validator(["Email or Username", "Password"], [email_or_username, password])
 
     if User.is_email(email_or_username):
         user = User.objects(
@@ -82,15 +79,14 @@ def login(email_or_username, password):
 
 @handle_exceptions
 def rtmp_auth(username, password):
-    null_validator("Username", username)
-    null_validator("Password", password)
+    null_validator(["Username", "Password"], [username, password])
 
     user = User.objects(
         Q(username=username) & Q(status__ne=UserStatus.INACTIVE)
     ).first()
 
     if not user or not user.check_password(password):
-        return err_res(401, "Invalid email or password.")
+        return err_res(401, "Invalid username or password.")
 
     if user.status not in [UserStatus.AVAILABLE, UserStatus.ASSIGNED]:
         return err_res(403, "Account is unavailable. Please contact support.")
@@ -127,7 +123,7 @@ def get_info(user_id):
 @authorize_admin
 @handle_exceptions
 def get_user_info(user_type, user_id):
-    null_validator("User ID", user_id)
+    null_validator(["User ID"], [user_id])
     user = User.objects.get(id=user_id)
     data = {
         "user_id": str(user.id),
@@ -236,7 +232,7 @@ def get_cur_missions(user_id):
 @authorize_admin
 @handle_exceptions
 def user_approval(user_type, user_id, approved, type):
-    null_validator("approved", approved)
+    null_validator(["Approved"], [approved])
     user = User.objects.get(id=user_id)
 
     if user.status not in [UserStatus.PENDING, UserStatus.REJECTED]:
@@ -274,6 +270,7 @@ def update_info(user_id, username, email):
         minlength_validator("Username", username, MIN_LENGTH)
         maxlength_validator("Username", username, MAX_LENGTH)
         user.username = username
+        # TO-DO: update mqtt creds for the user (name)
 
     if email:
         if user.email != email:
@@ -298,8 +295,7 @@ def update_password(user_id, old_password, new_password):
     if not user_id:
         return err_res(400, "Invalid token")
 
-    null_validator("Old password", old_password)
-    null_validator("New password", new_password)
+    null_validator(["Old password", "New password"], [old_password, new_password])
 
     if old_password == new_password:
         return err_res(409, "The new password is identical to the current one.")
@@ -313,6 +309,7 @@ def update_password(user_id, old_password, new_password):
 
     user.password = bcrypt.generate_password_hash(new_password).decode("utf-8")
     user.save()
+    # TO-DO: update mqtt creds for the user (password)
     return jsonify({"message": "Password is updated successfully."}), 200
 
 

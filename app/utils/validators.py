@@ -3,15 +3,15 @@ import re
 from mongoengine.errors import ValidationError, DoesNotExist
 from mongoengine.queryset.visitor import Q
 
-from app.utils.enums import UserStatus, DeviceStatus
+from app.utils.enums import UserStatus, DeviceStatus, DeviceType
 from app.models.device_model import Device
 from app.models.user_model import User
 
 
-def null_validator(field, value):
-    if value == None:
-        print(f"here ")
-        raise ValidationError(f"{field} is required")
+def null_validator(fields, values):
+    for field, value in zip(fields, values):
+        if value == None:
+            raise ValidationError(f"{field} is required")
 
 
 def minlength_validator(field, value, limit):
@@ -53,7 +53,9 @@ def enum_validator(enum_name, value, enum):
 
 
 def device_validator(device_ids):
-    existing_devices = Device.objects(Q(id__in=device_ids) & Q(status=DeviceStatus.AVAILABLE))
+    existing_devices = Device.objects(
+        Q(id__in=device_ids) & Q(status=DeviceStatus.AVAILABLE)
+    )
     existing_set = set(str(device.id) for device in existing_devices)
     provided_set = set(device_ids)
     missing_devices = provided_set - existing_set
@@ -64,7 +66,10 @@ def device_validator(device_ids):
 
 
 def user_validator(user_ids):
-    existing_users = User.objects(Q(id__in=user_ids) & (Q(status=UserStatus.AVAILABLE) | Q(status=UserStatus.ASSIGNED)))
+    existing_users = User.objects(
+        Q(id__in=user_ids)
+        & (Q(status=UserStatus.AVAILABLE) | Q(status=UserStatus.ASSIGNED))
+    )
     missing_users = set(user_ids) - set(user.id for user in existing_users)
     existing_set = set(str(user.id) for user in existing_users)
     provided_set = set(user_ids)
@@ -73,3 +78,13 @@ def user_validator(user_ids):
         raise DoesNotExist(
             f"Invalid user IDs: {', '.join(str(user_id) for user_id in missing_users)}"
         )
+
+
+def broker_validator(broker_id):
+    existing_broker = Device.objects(
+        Q(id=broker_id)
+        & Q(type=DeviceType.BROKER)
+        & Q(status__ne=DeviceStatus.INACTIVE)
+    )
+    if not existing_broker:
+        raise DoesNotExist(f"Invalid broker ID: {broker_id}")

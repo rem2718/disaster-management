@@ -25,8 +25,8 @@ class UserStatus(IntEnum):
 
 class DeviceStatus(IntEnum):
     AVAILABLE = 1
-    ASSIGNED = 3
-    INACTIVE = 4
+    ASSIGNED = 2
+    INACTIVE = 3
 
 
 class MissionStatus(IntEnum):

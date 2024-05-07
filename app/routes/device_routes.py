@@ -17,9 +17,18 @@ device = Blueprint("device_routes", __name__, url_prefix="/api/devices")
 def register_route():
     user_type = get_jwt_identity()["type"]
     name = request.json.get("name", None)
+    password = request.json.get("password", None)
     mac = request.json.get("mac", None)
     type = request.json.get("type", None)
-    return register(user_type, name, mac, type)
+    broker_id = request.json.get("broker_id", None)
+    return register(user_type, name, password, mac, type, broker_id)
+
+
+@device.route("/rtmp_auth", methods=["GET"])
+def rtmp_auth_route():
+    name = request.args.get("name", None)
+    password = request.args.get("password", None)
+    return rtmp_auth(name, password)
 
 
 @device.route("/<device_id>", methods=["GET"])
@@ -67,9 +76,10 @@ def get_count_route():
 def update_route(device_id):
     user_type = get_jwt_identity()["type"]
     name = request.json.get("name", None)
-    mac = request.json.get("mac", None)
-    type = request.json.get("type", None)
-    return update(user_type, device_id, name, mac, type)
+    old_password = request.json.get("old_password", None)
+    new_password = request.json.get("new_password", None)
+
+    return update(user_type, device_id, name, old_password, new_password)
 
 
 @device.route("/<device_id>", methods=["DELETE"])

@@ -839,6 +839,11 @@
                                     "example": "Device1",
                                     "required": true
                                 },
+                                "password": {
+                                    "type": "string",
+                                    "example": "Password@123",
+                                    "required": true
+                                },
                                 "mac": {
                                     "type": "string",
                                     "example": "00:0a:95:9d:68:16",
@@ -847,6 +852,11 @@
                                 "type": {
                                     "type": "int",
                                     "example": 1
+                                },
+                                "broker_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae20e90e08641e22ef",
+                                    "required": false
                                 }
                             }
                         }
@@ -887,6 +897,48 @@
                         "BearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/devices/rtmp_auth": {
+            "get": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Authentication Proxy for RTMP Server",
+                "description": "Login with name and password for RTMP Server",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "type": "string",
+                        "required": true,
+                        "default": "user123"
+                    },
+                    {
+                        "in": "query",
+                        "name": "password",
+                        "type": "string",
+                        "required": true,
+                        "default": "New_password123"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Device logged in successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid email or password"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
             }
         },
         "/api/devices/{device_id}": {
@@ -956,7 +1008,7 @@
                     "Device Management"
                 ],
                 "summary": "Device Info Update [ADMIN]",
-                "description": "update name, mac, or type for the Device\n\nDevice Types:\n1: UGV\n2: UAV\n3: DOG\n4: CHARGING_STATION\n 5: BROKER",
+                "description": "update name, or password for the Device\n\nDevice Types:\n1: UGV\n2: UAV\n3: DOG\n4: CHARGING_STATION\n 5: BROKER",
                 "parameters": [
                     {
                         "name": "device_id",
@@ -978,13 +1030,13 @@
                                     "type": "string",
                                     "example": "new_name"
                                 },
-                                "mac": {
+                                "old_password": {
                                     "type": "string",
-                                    "example": "00:0a:95:9d:68:16"
+                                    "example": "Old_password123"
                                 },
-                                "type": {
-                                    "type": "int",
-                                    "example": 2
+                                "new_password": {
+                                    "type": "string",
+                                    "example": "New_password123"
                                 }
                             }
                         }
@@ -1003,14 +1055,6 @@
                                 "name": {
                                     "type": "string",
                                     "example": "Robot1"
-                                },
-                                "mac": {
-                                    "type": "string",
-                                    "example": "00:0a:95:9d:68:16"
-                                },
-                                "type": {
-                                    "type": "int",
-                                    "example": 1
                                 }
                             }
                         }
