@@ -823,7 +823,7 @@
                 "tags": [
                     "Device Management"
                 ],
-                "summary": "Device Registration [ADMIN]",
+                "summary": "Device Registration [ADMIN - ROBOT]",
                 "description": "Register a new device\nName and MAC Address must be unique.\nThis endpoint is called from the device itself, not the mobile app.",
                 "parameters": [
                     {
@@ -1295,6 +1295,55 @@
                                 "count": {
                                     "type": "int",
                                     "example": 10
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden Error"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/devices/broker_id": {
+            "get": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Broker ID [ADMIN - ROBOT]",
+                "description": "Get the broker id by using its mac address",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "mac",
+                        "required": true,
+                        "description": "mac of the broker",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "broker_id": {
+                                    "type": "string",
+                                    "example": "6055a0ae20e90e08641e22ef"
                                 }
                             }
                         }

@@ -22,7 +22,6 @@ def register(user_type, name, password, mac, type, broker_id):
     mac_validator(mac)
     enum_validator("device", type, DeviceType)
     password_validator(password)
-
     existing_device = Device.objects(
         (Q(mac=mac) | Q(name=name)) & (Q(status__ne=DeviceStatus.INACTIVE))
     ).first()
@@ -155,6 +154,20 @@ def get_count(user_type, statuses, types):
     data = {"status": statuses, "type": types, "count": device_count}
 
     return jsonify(data), 200
+
+
+@authorize_admin
+@handle_exceptions
+def get_broker_id(user_type, mac):
+    null_validator(["MAC Address"], [mac])
+    mac_validator(mac)
+    broker = Device.objects(mac=mac).first()
+    
+    if broker and broker.type == DeviceType.BROKER:
+        data = {"broker_id": str(broker.id)}
+        return jsonify(data), 200
+
+    return  err_res(404, "Broker not found")
 
 
 @authorize_admin

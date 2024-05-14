@@ -71,6 +71,14 @@ def get_count_route():
     return get_count(user_type, statuses, types)
 
 
+@device.route("broker_id", methods=["GET"])
+@jwt_required()
+def get_broker_id_route():
+    user_type = get_jwt_identity()["type"]
+    mac = request.args.get("mac", None)
+    return get_broker_id(user_type, mac)
+
+
 @device.route("/<device_id>", methods=["PUT"])
 @jwt_required()
 def update_route(device_id):
