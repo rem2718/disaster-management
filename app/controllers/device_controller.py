@@ -105,7 +105,7 @@ def get_all(user_type, page_number, page_size, name, statuses, types, mission_id
         for dev in mission.device_ids:
             mission_devs.append(str(dev.id))
             device = Device.objects.get(id=str(dev.id))
-            if device.type not in types:
+            if types and device.type not in types:
                 continue
             data.append(
                 {
