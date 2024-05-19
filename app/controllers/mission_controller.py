@@ -22,7 +22,6 @@ def update_cur_mission(mission, type):
 
 
 def update_lists(ids_list, case, mission=None):
-    print(ids_list)
     match case:
         case "add_user":
             cur_m = cur_mission(
@@ -161,14 +160,14 @@ def update(user_type, mission_id, name, device_ids, user_ids):
         mission.name = name
         update_cur_mission(mission, "name")
 
-    if device_ids:
+    if device_ids != None:
         added_ids, deleted_ids = split_sets(mission.device_ids, device_ids)
         device_validator(added_ids)
         update_lists(added_ids, "add_device")
         update_lists(deleted_ids, "delete_device")
         mission.device_ids = [ObjectId(_id) for _id in device_ids]
 
-    if user_ids:
+    if user_ids != None:
         user_validator(user_ids)
         added_ids, deleted_ids = split_sets(mission.user_ids, user_ids)
         update_lists(added_ids, "add_user", mission)
@@ -217,7 +216,9 @@ def change_status(user_type, mission_id, command):
         case "cancel":
             if mission.status in ongoing_statues:
                 return err_res(409, "You can only end a starting mission.")
-            update_lists([str(oid.id) for oid in mission.user_ids], "delete_user", mission)
+            update_lists(
+                [str(oid.id) for oid in mission.user_ids], "delete_user", mission
+            )
             update_lists([str(oid.id) for oid in mission.device_ids], "delete_device")
             mission.status = MissionStatus.CANCELED
         case "end":

@@ -105,6 +105,8 @@ def get_all(user_type, page_number, page_size, name, statuses, types, mission_id
         for dev in mission.device_ids:
             mission_devs.append(str(dev.id))
             device = Device.objects.get(id=str(dev.id))
+            if device.type not in types:
+                continue
             data.append(
                 {
                     "id": str(device.id),
@@ -162,12 +164,12 @@ def get_broker_id(user_type, mac):
     null_validator(["MAC Address"], [mac])
     mac_validator(mac)
     broker = Device.objects(mac=mac).first()
-    
+
     if broker and broker.type == DeviceType.BROKER:
         data = {"broker_id": str(broker.id)}
         return jsonify(data), 200
 
-    return  err_res(404, "Broker not found")
+    return err_res(404, "Broker not found")
 
 
 @authorize_admin
